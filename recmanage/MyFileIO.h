@@ -12,7 +12,6 @@
 
 class MyFileIO {
 private:
-    std::string nowPath;
     BufPageManager *bm;
     FileManager *fm;
     std::vector<std::string> dbNames;
@@ -54,7 +53,7 @@ public:
 
     bool getTables(std::vector<std::string> &tables);
 
-    bool getTable(std::string tableName,MyTable *table);
+    MyTable* getTable(std::string tableName);
 };
 
 

@@ -51,7 +51,7 @@ bool MyData::getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,in
         {
             while (num>0)
             {
-                while (d[0]!='$')
+                while (d[0]!=StaticMethod::p3)
                     d+=1;
                 d+=1;--num;
             }
@@ -60,7 +60,7 @@ bool MyData::getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,in
             else
                 isNull=false;
             d+=1;dataLen=0;res=d;
-            while (d[0]!='$')
+            while (d[0]!=StaticMethod::p3)
                 d+=1,++dataLen;
             break;
         }
@@ -95,7 +95,7 @@ bool MyData::setValue(int num,int offset,MyCol* myCol,bool isNull,char* res,int 
         {
             while (num>0)
             {
-                while (d[0]!='$')
+                while (d[0]!=StaticMethod::p3)
                     d+=1,++pos;
                 d+=1;--num;++pos;
             }
@@ -106,7 +106,7 @@ bool MyData::setValue(int num,int offset,MyCol* myCol,bool isNull,char* res,int 
             d+=1;++pos;
             char* tmp=new char[1000],*dd=d;
             int delta=dataLen;
-            while (dd[0]!='$')
+            while (dd[0]!=StaticMethod::p3)
                 dd+=1,++pos,--delta;
             memcpy(tmp,dd,len-pos);
             memcpy(d,res,dataLen);

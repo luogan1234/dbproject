@@ -33,6 +33,8 @@ public:
         name=n;cols=c;
     }
 
+    bool insertData(MyData &Mydata);
+
     bool insertData(std::vector<MyData> &data);
 
     bool searchData(Constraints* con,std::vector<MyData> &res);

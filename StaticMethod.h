@@ -10,6 +10,7 @@
 class StaticMethod
 {
 public:
+    static char p1,p2,p3;
     void static addBlank(std::string &word,int len)
     {
         int n=word.size();

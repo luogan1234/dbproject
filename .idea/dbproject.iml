@@ -16,6 +16,7 @@
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyCol.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/StaticMethod.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/searchanalysis/Constraints.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/searchanalysis/Updates.h" isTestSource="false" />

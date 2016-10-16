@@ -54,8 +54,7 @@ void MyFileIO::saveTableInfo()
 
 bool MyFileIO::createDB(string dbname)
 {
-    int i,n=dbNames.size();
-    for (i=0;i<n;++i)
+    for (size_t i=0;i<dbNames.size();++i)
         if (dbname==dbNames[i])
             return false;
     string ins="mkdir ./data/"+dbname;
@@ -72,12 +71,19 @@ bool MyFileIO::dropDB(string dbName)
         nowDBName="";
         nowDBPath="./data/";
     }
-    string p="./data/"+dbName;
-    if (opendir(p.c_str())==NULL)
-        return false;
-    string ins="rm -rf "+p;
-    system(ins.c_str());
-    return true;
+    for (size_t i=0;i<dbNames.size();++i)
+        if (dbName==dbNames[i])
+        {
+            dbNames.erase(dbNames.begin()+i);
+            saveDBInfo();
+            string p="./data/"+dbName;
+            if (opendir(p.c_str())==NULL)
+                return false;
+            string ins="rm -rf "+p;
+            system(ins.c_str());
+            return true;
+        }
+    return false;
 }
 
 bool MyFileIO::useDB(string dbName)
@@ -121,6 +127,9 @@ bool MyFileIO::dropTable(string tableName)
     for (size_t i=0;i<tableNames.size();++i)
         if (tableNames[i]==tableName)
         {
+            tableNames.erase(tableNames.begin()+i);
+            tableFormats.erase(tableFormats.begin()+i);
+            saveTableInfo();
             string tar=nowDBPath+"/"+tableName+".data";
             string ins="rm "+tar;
             system(ins.c_str());
@@ -137,10 +146,10 @@ bool MyFileIO::getTables(vector<string> &tables)
     return true;
 }
 
-bool MyFileIO::getTable(string tableName,MyTable *table)
+MyTable* MyFileIO::getTable(string tableName)
 {
     if (nowDBName=="")
-        return false;
+        return 0;
     for (size_t i=0;i<tableNames.size();++i)
         if (tableNames[i]==tableName)
         {
@@ -148,9 +157,7 @@ bool MyFileIO::getTable(string tableName,MyTable *table)
             if (fileID!=-2147483647)
                 fm->closeFile(fileID);
             fm->openFile(tar.c_str(),fileID);
-            tableName=tableNames[i];
-            table=new MyTable(bm,fileID,tableName,tableFormats[i]);
-            return true;
+            return new MyTable(bm,fileID,tableName,tableFormats[i]);
         }
-    return false;
+    return 0;
 }

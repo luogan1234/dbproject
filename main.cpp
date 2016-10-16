@@ -51,7 +51,19 @@ int main() {
     MyFileIO myFileIO;
     myFileIO.createDB("tes1");
     myFileIO.createDB("tes2");
-
-
+    myFileIO.useDB("tes1");
+    myFileIO.dropDB("tes2");
+    myFileIO.createTable("my1",tc.toString());
+    myFileIO.createTable("my2",tc.toString());
+    myFileIO.dropTable("my1");
+    MyTable *m;
+    m=myFileIO.getTable("my2");
+//    m->insertData(myData);
+    Constraints con;
+    std::vector<MyData> ress;
+    ress.clear();
+    m->searchData(&con,ress);
+    for (size_t i=0;i<ress.size();++i)
+        ress[i].print();
     return 0;
 }

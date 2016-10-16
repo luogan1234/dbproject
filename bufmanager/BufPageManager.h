@@ -175,6 +175,7 @@ public:
 
 	~BufPageManager()
 	{
+		close();
 		delete fileManager;
 		delete hash;
 		delete dirty;

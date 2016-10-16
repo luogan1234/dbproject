@@ -3,13 +3,14 @@
 //
 
 #include "TableCols.h"
+#include "../StaticMethod.h"
 
 std::string TableCols::toString()
 {
     std::string ans="";
     for (size_t i=0;i<cols.size();++i)
     {
-        ans+=cols[i].toString()+"$";
+        ans+=cols[i].toString()+StaticMethod::p3;
     }
     return ans;
 }
@@ -20,7 +21,7 @@ bool TableCols::getFromString(std::string rec)
     size_t last=0,i,size=rec.size();
     for (i=0;i<size;++i)
     {
-        if (rec[i]=='$')
+        if (rec[i]==StaticMethod::p3)
         {
             cols.push_back(MyCol(rec.substr(last,i-last)));
             last=i+1;
