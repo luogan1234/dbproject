@@ -25,6 +25,7 @@ int main() {
     tc.addCol(m4);
     tc.setOrder();
     myData.setData("012340aaaabcb    0asdf$1$");
+    MyData myData2("011110adfojdioejo0asdffff$0aa$"),myData3("011110adfo22ioejo0ascdffff$0aa$");
     myData.print();
     int num,offset;
     MyCol* tar=tc.getByName("teset3",num,offset);
@@ -48,6 +49,7 @@ int main() {
     printf("%d\n",StaticMethod::toInt(res));
 
 
+    printf("-------------------------------------\n");
     MyFileIO myFileIO;
     myFileIO.createDB("tes1");
     myFileIO.createDB("tes2");
@@ -58,12 +60,27 @@ int main() {
     myFileIO.dropTable("my1");
     MyTable *m;
     m=myFileIO.getTable("my2");
-//    m->insertData(myData);
-    Constraints con;
-    std::vector<MyData> ress;
+    m->insertData(&myData2);
+    m->insertData(&myData3);
+    m->insertData(&myData);
+    Constraints con(1),con2(4);
+    Updates upd(&tc);
+    std::vector<MyData*> ress;
     ress.clear();
     m->searchData(&con,ress);
     for (size_t i=0;i<ress.size();++i)
-        ress[i].print();
+        ress[i]->print();
+    printf("-------------------------------------\n");
+    m->deleteData(&con2);
+    ress.clear();
+    m->searchData(&con,ress);
+    for (size_t i=0;i<ress.size();++i)
+        ress[i]->print();
+    printf("-------------------------------------\n");
+    m->updateData(&con,&upd);
+    ress.clear();
+    m->searchData(&con,ress);
+    for (size_t i=0;i<ress.size();++i)
+        ress[i]->print();
     return 0;
 }

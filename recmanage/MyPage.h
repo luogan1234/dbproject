@@ -38,13 +38,13 @@ public:
         return spaceLeft=8188;
     }
 
-    int insertData(MyData &data);
+    int insertData(MyData *data);
 
-    int searchData(Constraints* con,std::vector<MyData> &res);
+    int searchData(Constraints* con,std::vector<MyData*> &res);
 
     int deleteData(Constraints* con);
 
-    int updateData(Constraints* con,Updates* upd,std::vector<MyData> &updated);
+    int updateData(Constraints* con,Updates* upd,std::vector<MyData*> &updated);
 };
 
 

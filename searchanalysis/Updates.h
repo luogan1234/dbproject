@@ -7,12 +7,50 @@
 
 
 #include "../recmanage/MyData.h"
+#include "../recmanage/TableCols.h"
 
+#define COMPARE_EQUAL 0
+#define COMPARE_NOT_EQUAL 1
 class Updates {
-public:
-    bool update(MyData &myData)
+private:
+    TableCols *cols;
+    MyCol *tar;
+    int num,offset,newDataLen,oldDataLen,compareDataLen;
+    char *newRes,*oldRes,*compareRes;
+    bool oldIsNull;
+    int compare()
     {
-        return true;
+        if (compareDataLen!=oldDataLen)
+            return COMPARE_NOT_EQUAL;
+        else
+            for (int i=0;i<compareDataLen;++i)
+                if (compareRes[i]!=oldRes[i])
+                    return COMPARE_NOT_EQUAL;
+        return COMPARE_EQUAL;
+    }
+public:
+    Updates()
+    {
+
+    }
+
+    Updates(TableCols *c)
+    {
+        cols=c;
+        tar=cols->getByName("teset2",num,offset);
+        MyData::format("asdf",tar,compareRes,compareDataLen);
+    }
+
+    bool update(MyData *myData)
+    {
+        myData->getValue(num,offset,tar,oldIsNull,oldRes,oldDataLen);
+        MyData::format("abcde",tar,newRes,newDataLen);
+        if (compare()==COMPARE_EQUAL)
+        {
+            myData->setValue(num,offset,tar,false,newRes,newDataLen);
+            return true;
+        }
+        return false;
     }
 
 };

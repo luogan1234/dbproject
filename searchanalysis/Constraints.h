@@ -9,10 +9,27 @@
 #include "../recmanage/MyData.h"
 
 class Constraints {
+private:
+    int ranp,tot;
 public:
-    bool checkData(MyData data)
+    Constraints()
     {
-        return true;
+        ranp=1;tot=0;
+    }
+
+    Constraints(int p)
+    {
+        ranp=p;tot=0;
+        if (ranp<1) ranp=1;
+    }
+
+    bool checkData(MyData *data)
+    {
+        ++tot;
+        if (tot%ranp==0)
+            return true;
+        else
+            return false;
     }
 };
 

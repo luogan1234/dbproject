@@ -3,42 +3,7 @@
 //
 
 #include "MyData.h"
-#include "../StaticMethod.h"
 
-bool MyData::format(int p,MyCol* myCol,char* &res,int &dataLen)
-{
-    if (myCol==0)
-        return false;
-    if (myCol->type==TYPE_INT)
-    {
-        res=(char*) &p;
-        dataLen=4;
-        return true;
-    }
-    return false;
-}
-
-bool MyData::format(std::string word,MyCol* myCol,char* &res,int &dataLen)
-{
-    if (myCol==0)
-        return false;
-    if (myCol->type==TYPE_CHAR)
-    {
-        StaticMethod::addBlank(word,myCol->len);
-        res=(char*)word.c_str();
-        dataLen=myCol->len;
-        return true;
-    }
-    if (myCol->type==TYPE_VARCHAR)
-    {
-        res=(char*)word.c_str();
-        dataLen=word.size();
-        if (dataLen>myCol->len)
-            dataLen=myCol->len;
-        return true;
-    }
-    return false;
-}
 //num是第几个varchar
 bool MyData::getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,int &dataLen)
 {

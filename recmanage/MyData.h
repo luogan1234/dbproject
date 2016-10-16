@@ -13,6 +13,7 @@
 #include <cstring>
 #include "../consts.h"
 #include "MyCol.h"
+#include "../StaticMethod.h"
 
 class MyData
 {
@@ -24,6 +25,11 @@ public:
     {
         len=l;data=new char[2000];
         memcpy(data,d+offset,l);
+    }
+
+    MyData(std::string d)
+    {
+        setData(d);
     }
 
     void setData(std::string d)
@@ -46,9 +52,43 @@ public:
         delete []data;
     }
 
-    bool format(int p,MyCol* myCol,char* &res,int &dataLen);
+    bool static format(int p,MyCol* myCol,char* &res,int &dataLen)
+    {
+        if (myCol==0)
+            return false;
+        if (myCol->type==TYPE_INT)
+        {
+            res=new char[4];
+            memmove(res,(char*)&p,4);
+            dataLen=4;
+            return true;
+        }
+        return false;
+    }
 
-    bool format(std::string word,MyCol* myCol,char* &res,int &dataLen);
+    bool static format(std::string word,MyCol* myCol,char* &res,int &dataLen)
+    {
+        if (myCol==0)
+            return false;
+        if (myCol->type==TYPE_CHAR)
+        {
+            StaticMethod::addBlank(word,myCol->len);
+            dataLen=myCol->len;
+            res=new char[2000];
+            memmove(res,(char*)word.c_str(),dataLen);
+            return true;
+        }
+        if (myCol->type==TYPE_VARCHAR)
+        {
+            dataLen=word.size();
+            if (dataLen>myCol->len)
+                dataLen=myCol->len;
+            res=new char[2000];
+            memmove(res,(char*)word.c_str(),dataLen);
+            return true;
+        }
+        return false;
+    }
     //num是第几个varchar
     bool getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,int &dataLen);
 
