@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "recmanage/MyTable.h"
 #include "StaticMethod.h"
+#include "recmanage/MyFileIO.h"
 
 using namespace std;
 
@@ -45,6 +46,12 @@ int main() {
 
     myData.getValue(num,offset,tar,isNull,res,dataLen);
     printf("%d\n",StaticMethod::toInt(res));
+
+
+    MyFileIO myFileIO;
+    myFileIO.createDB("tes1");
+    myFileIO.createDB("tes2");
+
 
     return 0;
 }

@@ -2,32 +2,155 @@
 // Created by luogan on 16-10-16.
 //
 
+#include <fstream>
 #include "MyFileIO.h"
+using namespace std;
 
-void loadDBInfo()
+void MyFileIO::loadDBInfo()
 {
-
-}
-void saveDBInfo()
-{
-
-}
-void loadTableInfo()
-{
-
-}
-void saveTableInfo()
-{
-
+    ifstream fin("./data/dbnames");
+    string name;
+    dbNames.clear();
+    while (fin>>name)
+    {
+        dbNames.push_back(name);
+    }
+    fin.close();
 }
 
-bool MyFileIO::createDB(std::string dbname)
+void MyFileIO::saveDBInfo()
+{
+    ofstream fout("./data/dbnames");
+    for (size_t i=0;i<dbNames.size();++i)
+        fout<<dbNames[i]<<endl;
+    fout.close();
+}
+
+void MyFileIO::loadTableInfo()
+{
+    if (opendir(nowDBPath.c_str())==NULL)
+        return;
+    ifstream fin(nowDBPath+"/tables");
+    string name,format;
+    tableNames.clear();
+    tableFormats.clear();
+    while (fin>>name>>format)
+    {
+        tableNames.push_back(name);
+        tableFormats.push_back(format);
+    }
+    fin.close();
+}
+
+void MyFileIO::saveTableInfo()
+{
+    if (opendir(nowDBPath.c_str())==NULL)
+        return;
+    ofstream fout(nowDBPath+"/tables");
+    for (size_t i=0;i<tableNames.size();++i)
+        fout<<tableNames[i]<<' '<<tableFormats[i]<<endl;
+    fout.close();
+}
+
+bool MyFileIO::createDB(string dbname)
 {
     int i,n=dbNames.size();
     for (i=0;i<n;++i)
         if (dbname==dbNames[i])
             return false;
+    string ins="mkdir ./data/"+dbname;
+    system(ins.c_str());
     dbNames.push_back(dbname);
     saveDBInfo();
     return true;
+}
+
+bool MyFileIO::dropDB(string dbName)
+{
+    if (dbName==nowDBName)
+    {
+        nowDBName="";
+        nowDBPath="./data/";
+    }
+    string p="./data/"+dbName;
+    if (opendir(p.c_str())==NULL)
+        return false;
+    string ins="rm -rf "+p;
+    system(ins.c_str());
+    return true;
+}
+
+bool MyFileIO::useDB(string dbName)
+{
+    for (size_t i=0;i<dbNames.size();++i)
+        if (dbName==dbNames[i])
+        {
+            nowDBName=dbName;
+            nowDBPath="./data/"+dbName;
+            loadTableInfo();
+            return true;
+        }
+    return false;
+}
+
+bool MyFileIO::showDB(vector<string> &databases)
+{
+    databases.clear();
+    for (size_t i=0;i<dbNames.size();++i)
+        databases.push_back(dbNames[i]);
+    return true;
+}
+
+bool MyFileIO::createTable(string tableName,string tableFormat)
+{
+    for (size_t i=0;i<tableNames.size();++i)
+        if (tableNames[i]==tableName)
+            return false;
+    tableNames.push_back(tableName);
+    tableFormats.push_back(tableFormat);
+    string tar=nowDBPath+"/"+tableName+".data";
+    fm->createFile(tar.c_str());
+    saveTableInfo();
+    return true;
+}
+
+bool MyFileIO::dropTable(string tableName)
+{
+    if (nowDBName=="")
+        return false;
+    for (size_t i=0;i<tableNames.size();++i)
+        if (tableNames[i]==tableName)
+        {
+            string tar=nowDBPath+"/"+tableName+".data";
+            string ins="rm "+tar;
+            system(ins.c_str());
+            return true;
+        }
+    return false;
+}
+
+bool MyFileIO::getTables(vector<string> &tables)
+{
+    tables.clear();
+    for (size_t i=0;i<tableNames.size();++i)
+        tables.push_back(tableNames[i]);
+    return true;
+}
+
+bool MyFileIO::getTable(string tableName,MyTable *table)
+{
+    if (nowDBName=="")
+        return false;
+    for (size_t i=0;i<tableNames.size();++i)
+        if (tableNames[i]==tableName)
+        {
+            string tar=nowDBPath+"/"+tableName+".data";
+            if (fileID!=-2147483647)
+                fm->closeFile(fileID);
+            fm->openFile(tar.c_str(),fileID);
+            tableName=tableNames[i];
+            table=new MyTable(bm,fileID,tableName,tableFormats[i]);
+            return true;
+        }
+    return false;
 }

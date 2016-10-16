@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "../bufmanager/BufPageManager.h"
+#include "MyTable.h"
 
 class MyFileIO {
 private:
@@ -15,7 +16,9 @@ private:
     BufPageManager *bm;
     FileManager *fm;
     std::vector<std::string> dbNames;
-    std::vector<std::string> tableNames;
+    std::vector<std::string> tableNames,tableFormats;
+    std::string nowDBPath,nowDBName;
+    int fileID;
     void loadDBInfo();
     void saveDBInfo();
     void loadTableInfo();
@@ -25,7 +28,10 @@ public:
     {
         fm=new FileManager();
         bm=new BufPageManager(fm);
+        if (opendir("./data")==NULL)
+            system("mkdir ./data");
         loadDBInfo();
+        fileID=-2147483647;
     }
 
     ~MyFileIO()
@@ -34,13 +40,21 @@ public:
         delete bm;
     }
 
-    bool createDB(std::string dbname);
+    bool createDB(std::string dbName);
 
-    bool dropDB(std::string dbname);
+    bool dropDB(std::string dbName);
 
-    bool useDB(std::string dbname);
+    bool useDB(std::string dbName);
 
-    bool show
+    bool showDB(std::vector<std::string> &databases);
+
+    bool createTable(std::string tableName,std::string tableFormat);
+
+    bool dropTable(std::string tableName);
+
+    bool getTables(std::vector<std::string> &tables);
+
+    bool getTable(std::string tableName,MyTable *table);
 };
 
 
