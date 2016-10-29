@@ -9,8 +9,6 @@
 #include "../recmanage/MyData.h"
 #include "../recmanage/TableCols.h"
 
-#define COMPARE_EQUAL 0
-#define COMPARE_NOT_EQUAL 1
 class Updates {
 private:
     TableCols *cols;

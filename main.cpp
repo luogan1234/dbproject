@@ -3,6 +3,7 @@
 #include "recmanage/MyTable.h"
 #include "StaticMethod.h"
 #include "recmanage/MyFileIO.h"
+#include "recmanage/MyValue.h"
 
 using namespace std;
 
@@ -29,23 +30,22 @@ int main() {
     myData.print();
     int num, offset;
     MyCol *tar = tc.getByName("teset3", num, offset);
-    bool isNull;
-    char *res;
-    int dataLen;
-    myData.getValue(num, offset, tar, isNull, res, dataLen);
-    printf("%d\n", isNull);
-    for (size_t i = 0; i < dataLen; ++i) {
-        printf("%c", res[i]);
+    MyValue v;
+    myData.getValue(num, offset, tar, v);
+    printf("%d\n", v.isNull);
+    for (size_t i = 0; i < v.dataLen; ++i) {
+        printf("%c", v.res[i]);
     }
     printf("\n");
 
     tar = tc.getByName("teset1", num, offset);
-    myData.format(33, tar, res, dataLen);
-    myData.setValue(num, offset, tar, false, res, dataLen);
+    MyValue v2;
+    myData.format(33, tar, v2);
+    myData.setValue(num, offset, tar, v2);
     myData.print();
-
-    myData.getValue(num, offset, tar, isNull, res, dataLen);
-    printf("%d\n", StaticMethod::toInt(res));
+    MyValue v3;
+    myData.getValue(num, offset, tar, v3);
+    printf("%d\n", StaticMethod::toInt(v3.res));
 
 
     printf("-------------------------------------\n");
@@ -82,16 +82,30 @@ int main() {
     for (size_t i = 0; i < ress.size(); ++i)
         ress[i]->print();
     printf("-------------------------------------\n");
-    for (int i = 0; i < 300000; ++i)
+/*    for (int i = 0; i < 300000; ++i)
     {
         m->insertData(&myData);
         m->insertData(&myData2);
         m->insertData(&myData3);
+    }*/
+    std::vector<MyData*> datas;
+    for (int i=0;i<300000;++i)
+    {
+        datas.push_back(&myData);
+        datas.push_back(&myData2);
+        datas.push_back(&myData3);
     }
+    m->insertData(datas);
+    printf("insert done\n");
     m->deleteData(&con2);
+    printf("delete done\n");
     ress.clear();
     m->searchData(&con,ress);
-    ress.clear();
+    printf("%d\n",ress.size());
     m->updateData(&con,&upd);
+    ress.clear();
+    m->searchData(&con,ress);
+    printf("%d\n",ress.size());
+    myFileIO.closeAll();
     return 0;
 }

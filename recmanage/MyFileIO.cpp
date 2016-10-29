@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include "MyFileIO.h"
+
 using namespace std;
 
 void MyFileIO::loadDBInfo()
@@ -116,6 +117,11 @@ bool MyFileIO::createTable(string tableName,string tableFormat)
     tableFormats.push_back(tableFormat);
     string tar=nowDBPath+"/"+tableName+".data";
     fm->createFile(tar.c_str());
+    int fileIDInit;
+    fm->openFile(tar,fileIDInit);
+    MyTable mt=MyTable(bm,this,fileIDInit,tableName,tableFormat);
+    mt.init();
+    fm->closeFile(fileIDInit);
     saveTableInfo();
     return true;
 }
@@ -133,6 +139,7 @@ bool MyFileIO::dropTable(string tableName)
             string tar=nowDBPath+"/"+tableName+".data";
             string ins="rm "+tar;
             system(ins.c_str());
+            fm->closeFile(tableName);
             return true;
         }
     return false;
@@ -154,10 +161,61 @@ MyTable* MyFileIO::getTable(string tableName)
         if (tableNames[i]==tableName)
         {
             string tar=nowDBPath+"/"+tableName+".data";
-            if (fileID!=-2147483647)
-                fm->closeFile(fileID);
-            fm->openFile(tar.c_str(),fileID);
-            return new MyTable(bm,fileID,tableName,tableFormats[i]);
+            fm->openFile(tar,fileID);
+            return new MyTable(bm,this,fileID,tableName,tableFormats[i]);
         }
     return 0;
+}
+
+void MyFileIO::closeAll()
+{
+    bm->close();
+    fm->closeAll();
+}
+
+bool MyFileIO::createIndex(string name,short colID,char type,int valueType,int valueLen)
+{
+    if (nowDBPath=="")
+        return false;
+    char *id;
+    sprintf(id,"%d",int(colID));
+    string ID=id;
+    string tar=nowDBPath+"/"+name+"_"+ID+".index";
+    fm->createFile(tar.c_str());
+    int fileIDInit;
+    fm->openFile(tar,fileIDInit);
+    MyIndex mi=MyIndex(bm,name,colID,type,valueType,valueLen);
+    mi.init();
+    fm->closeFile(fileIDInit);
+    return true;
+}
+
+bool MyFileIO::dropIndex(string name,short colID)
+{
+    if (nowDBPath=="")
+        return false;
+    char *id;
+    sprintf(id,"%d",int(colID));
+    string ID=id;
+    string tar=nowDBPath+"/"+name+"_"+ID+".index";
+    if (opendir(tar.c_str())==NULL)
+        return false;
+    string ins="rm -rf "+tar;
+    system(ins.c_str());
+    return true;
+}
+
+MyIndex* MyFileIO::getIndex(string name,short colID)
+{
+    if (nowDBPath=="")
+        return false;
+    char *id;
+    sprintf(id,"%d",int(colID));
+    string ID=id;
+    string tar=nowDBPath+"/"+name+"_"+ID+".index";
+    if (opendir(tar.c_str())==NULL)
+        return false;
+    fm->openFile(tar,fileID);
+    MyIndex *mi=new MyIndex(fileID);
+    return mi;
 }

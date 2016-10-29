@@ -13,10 +13,11 @@
 using namespace std;
 class FileManager {
 private:
-	//FileTable* ftable;
 	int fd[MAX_FILE_NUM];
-	MyBitMap* fm;
-	MyBitMap* tm;
+	bool used[MAX_FILE_NUM];
+    std::string fileName[MAX_FILE_NUM];
+//	MyBitMap* fm;
+//	MyBitMap* tm;
 	int _createFile(const char* name) {
 		FILE* f = fopen(name, "a+");
 		if (f == NULL) {
@@ -39,8 +40,10 @@ public:
 	 * FilManager构造函数
 	 */
 	FileManager() {
-		fm = new MyBitMap(MAX_FILE_NUM, 1);
-		tm = new MyBitMap(MAX_TYPE_NUM, 1);
+		for (int i=0;i<MAX_FILE_NUM;++i)
+			used[i]=false;
+//		fm = new MyBitMap(MAX_FILE_NUM, 1);
+//		tm = new MyBitMap(MAX_TYPE_NUM, 1);
 	}
 	/*
 	 * @函数名writePage
@@ -92,11 +95,20 @@ public:
 	 * 返回:操作成功，返回0
 	 */
 	int closeFile(int fileID) {
-		fm->setBit(fileID, 1);
 		int f = fd[fileID];
-		close(f);
+		close(f);used[fileID]=false;
 		return 0;
 	}
+
+    int closeFile(std::string name){
+        for (int i=0;i<MAX_FILE_NUM;++i)
+            if (used[i]&&fileName[i]==name)
+            {
+                used[i]=false;close(fd[i]);
+                return true;
+            }
+        return false;
+    }
 	/*
 	 * @函数名createFile
 	 * @参数name:文件名
@@ -114,26 +126,31 @@ public:
 	 * 功能:打开文件
 	 * 返回:如果成功打开，在fileID中存储为该文件分配的id，返回true，否则返回false
 	 */
-	bool openFile(const char* name, int& fileID) {
-		fileID = fm->findLeftOne();
-		fm->setBit(fileID, 0);
-		_openFile(name, fileID);
-		return true;
+	bool openFile(std::string name, int& fileID) {
+        for (int i=0;i<MAX_FILE_NUM;++i)
+            if (used[i]&&fileName[i]==name)
+            {
+                fileID=i;
+                return true;
+            }
+		for (int i=0;i<MAX_FILE_NUM;++i)
+			if (!used[i])
+			{
+				fileID=i;used[i]=true;fileName[i]=name;
+				_openFile(name.c_str(), fileID);
+				return true;
+			}
+		return false;
 	}
-	int newType() {
-		int t = tm->findLeftOne();
-		tm->setBit(t, 0);
-		return t;
-	}
-	void closeType(int typeID) {
-		tm->setBit(typeID, 1);
-	}
-	void shutdown() {
-		delete tm;
-		delete fm;
-	}
-	~FileManager() {
-		this->shutdown();
+
+	void closeAll()
+	{
+		for (int i=0;i<MAX_FILE_NUM;++i)
+			if (used[i])
+            {
+                used[i]=false;
+                close(fd[i]);
+            }
 	}
 };
 #endif

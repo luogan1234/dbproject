@@ -4,11 +4,56 @@
 
 #include "MyData.h"
 
-//num是第几个varchar
-bool MyData::getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,int &dataLen)
+static bool MyData::format(int p, MyCol *myCol, MyValue &v)
 {
     if (myCol==0)
         return false;
+    if (myCol->type==TYPE_INT)
+    {
+        v.type=TYPE_INT;
+        v.isNull=false;
+        v.res=new char[4];
+        memmove(v.res,(char*)&p,4);
+        v.dataLen=4;
+        return true;
+    }
+    return false;
+}
+
+static bool MyData::format(std::string word, MyCol *myCol, MyValue &v)
+{
+    if (myCol==0)
+        return false;
+    if (myCol->type==TYPE_CHAR)
+    {
+        StaticMethod::addBlank(word,myCol->len);
+        v.type=TYPE_CHAR;
+        v.isNull=false;
+        v.dataLen=myCol->len;
+        v.res=new char[v.dataLen];
+        memmove(v.res,(char*)word.c_str(),v.dataLen);
+        return true;
+    }
+    if (myCol->type==TYPE_VARCHAR)
+    {
+        v.type=TYPE_VARCHAR;
+        v.isNull=false;
+        v.dataLen=word.size();
+        if (v.dataLen>myCol->len)
+            v.dataLen=myCol->len;
+        v.res=new char[v.dataLen];
+        memmove(v.res,(char*)word.c_str(),v.dataLen);
+        return true;
+    }
+    return false;
+}
+
+//num是第几个varchar
+bool MyData::getValue(int num,int offset,MyCol* myCol,MyValue &v)
+{
+    if (myCol==0)
+        return false;
+    v.type=myCol->type;
     char* d=data+offset;
     switch (myCol->type)
     {
@@ -21,37 +66,37 @@ bool MyData::getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,in
                 d+=1;--num;
             }
             if (d[0]=='1')
-                isNull=true;
+                v.isNull=true;
             else
-                isNull=false;
-            d+=1;dataLen=0;res=d;
+                v.isNull=false;
+            d+=1;v.dataLen=0;v.res=d;
             while (d[0]!=StaticMethod::p3)
-                d+=1,++dataLen;
+                d+=1,++v.dataLen;
             break;
         }
         case TYPE_INT:
             if (d[0]=='1')
-                isNull=true;
+                v.isNull=true;
             else
-                isNull=false;
-            res=d+1;
-            dataLen=4;
+                v.isNull=false;
+            v.res=d+1;
+            v.dataLen=4;
             break;
         case TYPE_CHAR:
             if (d[0]=='1')
-                isNull=true;
+                v.isNull=true;
             else
-                isNull=false;
-            res=d+1;
-            dataLen=myCol->len;
+                v.isNull=false;
+            v.res=d+1;
+            v.dataLen=myCol->len;
             break;
     }
     return true;
 }
 
-bool MyData::setValue(int num,int offset,MyCol* myCol,bool isNull,char* res,int dataLen)
+bool MyData::setValue(int num,int offset,MyCol* myCol,MyValue &v)
 {
-    if (myCol==0)
+    if (myCol==0||v.type!=myCol->type)
         return false;
     char* d=data+offset;int pos=offset;
     switch (myCol->type)
@@ -64,34 +109,36 @@ bool MyData::setValue(int num,int offset,MyCol* myCol,bool isNull,char* res,int 
                     d+=1,++pos;
                 d+=1;--num;++pos;
             }
-            if (isNull)
+            if (v.isNull)
                 d[0]='1';
             else
                 d[0]='0';
             d+=1;++pos;
             char* tmp=new char[1000],*dd=d;
-            int delta=dataLen;
+            int delta=v.dataLen;
             while (dd[0]!=StaticMethod::p3)
                 dd+=1,++pos,--delta;
             memcpy(tmp,dd,len-pos);
-            memcpy(d,res,dataLen);
-            memcpy(d+dataLen,tmp,len-pos);
+            memcpy(d,v.res,v.dataLen);
+            memcpy(d+v.dataLen,tmp,len-pos);
             len+=delta;
             break;
         }
         case TYPE_INT:
-            if (isNull)
+            if (v.isNull)
                 d[0]='1';
             else
                 d[0]='0';
-            memcpy(d+1,res,4);
+            memcpy(d+1,v.res,4);
             break;
         case TYPE_CHAR:
-            if (isNull)
+            if (v.dataLen!=myCol->len)
+                return false;
+            if (v.isNull)
                 d[0]='1';
             else
                 d[0]='0';
-            memcpy(d+1,res,myCol->len);
+            memcpy(d+1,v.res,myCol->len);
             break;
     }
     return true;

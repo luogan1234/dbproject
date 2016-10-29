@@ -9,6 +9,7 @@
 #include <vector>
 #include "../bufmanager/BufPageManager.h"
 #include "MyTable.h"
+#include "MyIndex.h"
 
 class MyFileIO {
 private:
@@ -54,6 +55,14 @@ public:
     bool getTables(std::vector<std::string> &tables);
 
     MyTable* getTable(std::string tableName);
+
+    void closeAll();
+
+    bool createIndex(std::string name,short colID,char type,int valueType,int valueLen);
+
+    bool dropIndex(std::string name,short colID);
+
+    MyIndex* getIndex(std::string name,short colID);
 };
 
 

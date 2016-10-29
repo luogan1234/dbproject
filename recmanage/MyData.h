@@ -14,6 +14,7 @@
 #include "../consts.h"
 #include "MyCol.h"
 #include "../StaticMethod.h"
+#include "MyValue.h"
 
 class MyData
 {
@@ -52,47 +53,14 @@ public:
         delete []data;
     }
 
-    bool static format(int p,MyCol* myCol,char* &res,int &dataLen)
-    {
-        if (myCol==0)
-            return false;
-        if (myCol->type==TYPE_INT)
-        {
-            res=new char[4];
-            memmove(res,(char*)&p,4);
-            dataLen=4;
-            return true;
-        }
-        return false;
-    }
+    static bool format(int p,MyCol* myCol,MyValue &v);
 
-    bool static format(std::string word,MyCol* myCol,char* &res,int &dataLen)
-    {
-        if (myCol==0)
-            return false;
-        if (myCol->type==TYPE_CHAR)
-        {
-            StaticMethod::addBlank(word,myCol->len);
-            dataLen=myCol->len;
-            res=new char[2000];
-            memmove(res,(char*)word.c_str(),dataLen);
-            return true;
-        }
-        if (myCol->type==TYPE_VARCHAR)
-        {
-            dataLen=word.size();
-            if (dataLen>myCol->len)
-                dataLen=myCol->len;
-            res=new char[2000];
-            memmove(res,(char*)word.c_str(),dataLen);
-            return true;
-        }
-        return false;
-    }
+    static bool format(std::string word,MyCol* myCol,MyValue &v);
+
     //num是第几个varchar
-    bool getValue(int num,int offset,MyCol* myCol,bool &isNull,char* &res,int &dataLen);
+    bool getValue(int num,int offset,MyCol* myCol,MyValue &v);
 
-    bool setValue(int num,int offset,MyCol* myCol,bool isNull,char* res,int dataLen);
+    bool setValue(int num,int offset,MyCol* myCol,MyValue &v);
 };
 
 #endif //DBPROJECT_MYDATA_H

@@ -76,3 +76,8 @@ MyCol* TableCols::getByName(std::string _name,int &_num,int &_offset)      //num
     _num=_offset=-1;
     return 0;
 }
+
+void TableCols::getByOrder(int p, int &_num,int &_offset)
+{
+    _num=num[p];_offset=offset[p];
+}

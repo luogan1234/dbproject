@@ -10,6 +10,7 @@
 #include "../bufmanager/BufPageManager.h"
 #include "../searchanalysis/Constraints.h"
 #include "../searchanalysis/Updates.h"
+#include "MyFileIO.h"
 
 class MyTable
 {
@@ -17,21 +18,34 @@ public:
     std::string name;
     TableCols cols;
     BufPageManager* bm;
-    int fileID,index;
+    MyFileIO* myFileIO;
+    int fileID,index,totalUsed,_totalUsed,indexingTot;
+    std::vector<short> indexingCol;
+    std::vector<char> indexingType;
 
-    MyTable(BufPageManager* bm,int f,std::string n,std::string c)
+    MyTable(BufPageManager* bm,MyFileIO* m,int f,std::string n,std::string c)
     {
         this->bm=bm;
+        myFileIO=m;
         fileID=f;
         name=n;cols=TableCols(c);
+        deal();
     }
 
-    MyTable(BufPageManager* bm,int f,std::string n,TableCols c)
+    MyTable(BufPageManager* bm,MyFileIO* m,int f,std::string n,TableCols c)
     {
         this->bm=bm;
+        myFileIO=m;
         fileID=f;
         name=n;cols=c;
+        deal();
     }
+
+    void deal();
+
+    void init();
+
+    void pageUsedUpdate();
 
     bool insertData(MyData *Mydata);
 
@@ -42,6 +56,10 @@ public:
     bool deleteData(Constraints* con);
 
     bool updateData(Constraints* con,Updates* upd);
+
+    bool createIndex(short colID,char type);
+
+    bool dropIndex(short colID);
 
 };
 
