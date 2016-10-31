@@ -44,6 +44,71 @@ void MyIndex::getInfo()
 
 bool MyIndex::insertDataClustered(MyData* myData)
 {
+    if (type!=INDEX_CLUSTERED)
+        return false;
+    int num,offset;
+    myTable->cols.getByOrder(colID,num,offset);
+    MyValue value;
+    myData->getValue(num,offset,&myTable->cols.cols[colID],value);
+    int pageNow=rootPage,comRes,resPage=-1;
+    while (true)
+    {
+        char *page=bm->getPage(fileID,pageNow,index);
+        int pageType=*(int*)page,eleNum;
+        int head=0;
+        if (pageType==PAGE_NORMAL)
+        {
+            head=4;
+            if (type==INDEX_UNCLUSTERED)
+                head+=8;
+        }else
+        {
+            if (type==INDEX_CLUSTERED)
+                head=4;
+            else
+                head=8;
+        }
+        eleNum=*(int*)(page+8188);
+        int k=1;
+        int* next=(int*)(page+8184),*ele;
+        while (k<=eleNum)
+        {
+            ele=next;++k;next-=1;
+            MyValue v;
+            v.isNull=false;
+            v.type=valueType;
+            v.res=page+*ele+head;
+            switch (valueType)
+            {
+                case TYPE_INT:
+                    v.dataLen=4;
+                    break;
+                case TYPE_CHAR:
+                    v.dataLen=valueLen;
+                    break;
+                case TYPE_VARCHAR:
+                    v.dataLen=*next-*ele-head;
+                    break;
+                default:
+                    ;
+            }
+            comRes=value.compare(&v);
+            if (comRes==COMPARE_SMALLER||comRes==COMPARE_EQUAL||pageType==PAGE_LEAF&&k>eleNum)
+            {
+                if (pageType==PAGE_NORMAL)
+                {
+                    pageNow=*(int*)(page+*ele);
+                    break;
+                }else
+                {
+                    resPage=*(int*)(page+*ele);
+                    break;
+                }
+            }
+        }
+        if (resPage!=-1)
+            break;
+    }
 
 }
 
@@ -580,7 +645,21 @@ bool MyIndex::deleteData(MyValue* value,int page,int slot)
                 }
                 if (o<m)
                 {
-
+                    int pointPage=*(int*)(page0+4);
+                    if (o==0)
+                    {
+                        rootPage=pointPage;
+                        char* page00=bm->getPage(fileID,0,index);
+                        *(int*)(page00+16)=rootPage;
+                        bm->markDirty(index);
+                    }else
+                    {
+                        char* page00=pages[o-1];
+                        k=slots[o-1];
+                        *(int*)(page00+*(int*)(page00+8188-k*4))=pointPage;
+                        bm->markDirty(indexs[o-1]);
+                    }
+                    return true;
                 }
             }
             else
