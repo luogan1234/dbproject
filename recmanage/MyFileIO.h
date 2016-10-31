@@ -62,7 +62,7 @@ public:
 
     bool dropIndex(std::string name,short colID);
 
-    MyIndex* getIndex(std::string name,short colID);
+    MyIndex* getIndex(std::string name,short colID,MyTable* myTable);
 };
 
 

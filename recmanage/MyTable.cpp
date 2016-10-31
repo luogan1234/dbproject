@@ -104,14 +104,19 @@ void MyTable::pageUsedUpdate()
 bool MyTable::insertData(MyData *data)
 {
     for (int i=0;i<indexingTot;++i)
-        if (indexingType[i]==INDEX_CLUSTERED)
+        if (indexingType[i]==INDEX_CLUSTERED||indexingType[i]==INDEX_CLUSTERED_UNIQUE)
         {
-            MyIndex* myIndex=myFileIO.getIndex(name,indexingCol[i]);
+            MyIndex* myIndex=myFileIO->getIndex(name,indexingCol[i],this);
             if (myIndex==0)
                 break;
-            myIndex->insertData(data);
+            myIndex->insertDataClustered(data);
             return true;
         }
+    return _insertData(data);
+}
+
+bool MyTable::_insertData(MyData *data)
+{
     _totalUsed=totalUsed;
     int pageNum=1;
     while (true)
@@ -162,6 +167,21 @@ bool MyTable::insertData(MyData *data)
 }
 
 bool MyTable::insertData(std::vector<MyData*> &data)
+{
+    for (int i=0;i<indexingTot;++i)
+        if (indexingType[i]==INDEX_CLUSTERED||indexingType[i]==INDEX_CLUSTERED_UNIQUE)
+        {
+            MyIndex* myIndex=myFileIO->getIndex(name,indexingCol[i],this);
+            if (myIndex==0)
+                break;
+            for (size_t j=0;j<data.size();++j)
+                myIndex->insertDataClustered(data[j]);
+            return true;
+        }
+    return _insertData(data);
+}
+
+bool MyTable::_insertData(std::vector<MyData*> &data)
 {
     _totalUsed=totalUsed;
     int pageNum=1,k=0,m=data.size();

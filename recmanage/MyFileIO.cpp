@@ -184,8 +184,7 @@ bool MyFileIO::createIndex(string name,short colID,char type,int valueType,int v
     fm->createFile(tar.c_str());
     int fileIDInit;
     fm->openFile(tar,fileIDInit);
-    MyIndex mi=MyIndex(bm,name,colID,type,valueType,valueLen);
-    mi.init();
+    MyIndex mi=MyIndex(bm,name,colID,type,valueType,valueLen,fileIDInit);
     fm->closeFile(fileIDInit);
     return true;
 }
@@ -205,7 +204,7 @@ bool MyFileIO::dropIndex(string name,short colID)
     return true;
 }
 
-MyIndex* MyFileIO::getIndex(string name,short colID)
+MyIndex* MyFileIO::getIndex(string name,short colID,MyTable* myTable)
 {
     if (nowDBPath=="")
         return false;
@@ -216,6 +215,6 @@ MyIndex* MyFileIO::getIndex(string name,short colID)
     if (opendir(tar.c_str())==NULL)
         return false;
     fm->openFile(tar,fileID);
-    MyIndex *mi=new MyIndex(fileID);
+    MyIndex *mi=new MyIndex(bm,name,colID,fileID,myTable);
     return mi;
 }

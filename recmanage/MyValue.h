@@ -17,9 +17,9 @@ public:
     {
     }
 
-    int compare(MyValue& v);
+    int compare(MyValue* v);
 
-    static int compare(MyValue& v1,MyValue &v2);
+    static int compare(MyValue* v1,MyValue* v2);
 };
 
 

@@ -47,7 +47,7 @@ public:
 
     void pageUsedUpdate();
 
-    bool insertData(MyData *Mydata);
+    bool insertData(MyData *data);
 
     bool insertData(std::vector<MyData*> &data);
 
@@ -56,6 +56,10 @@ public:
     bool deleteData(Constraints* con);
 
     bool updateData(Constraints* con,Updates* upd);
+
+    bool _insertData(MyData *data);
+
+    bool _insertData(std::vector<MyData*> &data);
 
     bool createIndex(short colID,char type);
 

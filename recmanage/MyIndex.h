@@ -8,8 +8,15 @@
 
 #include <string>
 #include "../bufmanager/BufPageManager.h"
+#include "MyData.h"
+
+class MyTable;
 
 class MyIndex {
+private:
+    void init();
+
+    void getInfo();
 public:
     std::string name;
     short colID;
@@ -18,20 +25,35 @@ public:
     int valueLen;
     BufPageManager* bm;
     int fileID;
+    int totalUsed,index,rootPage;
+    vector<char*> pages;
+    vector<int> nows,slots,indexs;
+    MyTable* myTable;
 
     MyIndex(BufPageManager* bm,std::string n,short c,char t,int vt,int vl,int f)
     {
         this->bm=bm;
         name=n;colID=c;type=t;valueType=vt;valueLen=vl;fileID=f;
+        init();
     }
 
-    MyIndex(BufPageManager* bm,std::string n,short c,int f)
+    MyIndex(BufPageManager* bm,std::string n,short c,int f,MyTable* m)
     {
         this->bm=bm;
         name=n;colID=c;fileID=f;
+        myTable=m;
+        getInfo();
     }
 
-    void init();
+    bool insertDataClustered(MyData* myData);
+    //范围在value1~value2之间，要求value1<=value2，type1为<=或<，type2为>=或>，或者取undefined表示不限制
+    bool findData(MyValue* value1,int type1,MyValue* value2,int type2,std::vector<std::pair<int,int>> &res);
+
+    bool searchData(MyValue* value,int page,int slot,int pp);
+
+    bool insertData(MyValue* value,int page,int slot);
+
+    bool deleteData(MyValue* value,int page,int slot);
 };
 
 

@@ -45,6 +45,8 @@ public:
     int deleteData(Constraints* con);
 
     int updateData(Constraints* con,Updates* upd,std::vector<MyData*> &updated);
+
+    int findData(std::vector<std::pair<int,int>> &res);
 };
 
 
