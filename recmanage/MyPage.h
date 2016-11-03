@@ -39,6 +39,8 @@ public:
 
     int insertData(MyData *data);
 
+    bool insertDataClustered(MyData *data,int num,int offset,MyValue &value,MyCol* myCol,MyIndex* myIndex);
+
     int searchData(Constraints* con,std::vector<MyData*> &res);
 
     int deleteData(Constraints* con);

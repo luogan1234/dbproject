@@ -10,9 +10,11 @@
 #include "../bufmanager/BufPageManager.h"
 #include "../searchanalysis/Constraints.h"
 #include "../searchanalysis/Updates.h"
-#include "MyFileIO.h"
 #include "ModifyInfo.h"
 #include "ModifyInfoForCluster.h"
+
+class MyFileIO;
+class MyIndex;
 
 class MyTable
 {

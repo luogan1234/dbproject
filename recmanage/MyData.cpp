@@ -4,7 +4,7 @@
 
 #include "MyData.h"
 
-static bool MyData::format(int p, MyCol *myCol, MyValue &v)
+bool MyData::format(int p, MyCol *myCol, MyValue &v)
 {
     if (myCol==0)
         return false;
@@ -20,7 +20,7 @@ static bool MyData::format(int p, MyCol *myCol, MyValue &v)
     return false;
 }
 
-static bool MyData::format(std::string word, MyCol *myCol, MyValue &v)
+bool MyData::format(std::string word, MyCol *myCol, MyValue &v)
 {
     if (myCol==0)
         return false;

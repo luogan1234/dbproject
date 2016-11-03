@@ -109,7 +109,9 @@ bool MyIndex::insertDataClustered(MyData* myData)
         if (resPage!=-1)
             break;
     }
-    return true;
+
+    MyPage myPage(myTable->fileID,resPage,bm,myTable);
+    return myPage.insertDataClustered(myData,num,offset,value,&myTable->cols.cols[colID],this);
 }
 
 bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vector<pair<int,int>> &res)

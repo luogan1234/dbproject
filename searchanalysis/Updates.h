@@ -13,19 +13,8 @@ class Updates {
 private:
     TableCols *cols;
     MyCol *tar;
-    int num,offset,newDataLen,oldDataLen,compareDataLen;
-    char *newRes,*oldRes,*compareRes;
-    bool oldIsNull;
-    int compare()
-    {
-        if (compareDataLen!=oldDataLen)
-            return COMPARE_NOT_EQUAL;
-        else
-            for (int i=0;i<compareDataLen;++i)
-                if (compareRes[i]!=oldRes[i])
-                    return COMPARE_NOT_EQUAL;
-        return COMPARE_EQUAL;
-    }
+    int num,offset;
+    MyValue oldValue,comValue,newValue;
 public:
     Updates()
     {
@@ -36,16 +25,16 @@ public:
     {
         cols=c;
         tar=cols->getByName("teset2",num,offset);
-        MyData::format("asdf",tar,compareRes,compareDataLen);
+        MyData::format("asdf",tar,comValue);
     }
 
     bool update(MyData *myData)
     {
-        myData->getValue(num,offset,tar,oldIsNull,oldRes,oldDataLen);
-        MyData::format("abcde",tar,newRes,newDataLen);
-        if (compare()==COMPARE_EQUAL)
+        myData->getValue(num,offset,tar,oldValue);
+        MyData::format("abcde",tar,newValue);
+        if (oldValue.compare(&comValue)==COMPARE_EQUAL)
         {
-            myData->setValue(num,offset,tar,false,newRes,newDataLen);
+            myData->setValue(num,offset,tar,newValue);
             return true;
         }
         return false;

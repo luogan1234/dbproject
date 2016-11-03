@@ -3,6 +3,7 @@
 //
 
 #include "MyPage.h"
+#include "MyIndex.h"
 
 using namespace std;
 
@@ -21,6 +22,123 @@ int MyPage::insertData(MyData *data)
     mi->oldPage=-1;mi->oldSlot=-1;
     myTable->infos.push_back(mi);
     return spaceLeft;
+}
+
+bool MyPage::insertDataClustered(MyData *data,int num,int offset,MyValue &value,MyCol* myCol,MyIndex* myIndex)
+{
+    int* eleNum=(int*)(page+8188);
+    int k=0,p=-1,len=8;
+    int* next=(int*)(page+8184),*ele;
+    vector<MyData*> datas;
+    vector<MyValue*> values;
+    datas.clear();
+    while (k<*eleNum)
+    {
+        ele=next;++k;next-=1;
+        MyData *myData=new MyData(page,*ele,*next-*ele);
+        MyValue* myValue=new MyValue;
+        myData->getValue(num,offset,myCol,*myValue);
+        int comRes=value.compare(myValue);
+        if (comRes==COMPARE_EQUAL)
+        {
+            int i,m=datas.size();
+            for (i=0;i<m;++i)
+                delete datas[i];
+            return false;
+        }
+        if (comRes==COMPARE_SMALLER&&p==-1)
+        {
+            datas.push_back(data);p=k-1;
+            values.push_back(&value);
+            len+=data->len+4;
+        }
+        datas.push_back(myData);
+        values.push_back(myValue);
+        len+=myData->len+4;
+    }
+    if (p==-1)
+    {
+        datas.push_back(data);p=k;
+        len+=data->len+4;
+    }
+    int i,ii=datas.size(),j,pos,index0,m=datas.size();
+    if (len>8100)
+    {
+        int len2=8;
+        for (i=0;i<m;++i)
+        {
+            len2+=datas[i]->len+4;
+            if (len2>len/2)
+            {
+                ii=i;
+                break;
+            }
+        }
+        int newPage=myTable->totalUsed;j=pos=0;
+        char* page0=bm->getPage(fileID,newPage,index0);
+        for (i=ii;i<m;++i)
+        {
+            ++j;
+            *(int*)(page0+8188-j*4)=pos;
+            memmove(page0+pos,datas[i]->data,datas[i]->len);
+            pos+=datas[i]->len;
+            ModifyInfo* mi=new ModifyInfo;
+            mi->data=datas[i];
+            mi->newPage=newPage;mi->newSlot=j;
+            if (i==p)
+            {
+                mi->oldPage=mi->oldSlot=-1;
+            }else
+            {
+                mi->oldPage=pageID;mi->oldSlot=i+1;
+                if (i>p)
+                    mi->oldSlot=i;
+            }
+            myTable->infos.push_back(mi);
+        }
+        *(int*)(page0+8188)=j;
+        myIndex->insertData(values[m-1],newPage,-1);
+        bm->markDirty(index0);
+        ++myTable->totalUsed;
+        page0=bm->getPage(fileID,0,index0);
+        *(int*)page0=myTable->totalUsed;
+        bm->markDirty(index0);
+    }
+    j=pos=0;
+    for (i=0;i<ii;++i)
+    {
+        ++j;
+        if (i<p)
+        {
+            pos+=datas[i]->len;
+            continue;
+        }
+        *(int*)(page+8188-j*4)=pos;
+        memmove(page+pos,datas[i]->data,datas[i]->len);
+        pos+=datas[i]->len;
+        ModifyInfo* mi=new ModifyInfo;
+        mi->data=datas[i];
+        mi->newPage=pageID;mi->newSlot=j;
+        if (i==p)
+        {
+            mi->oldPage=mi->oldSlot=-1;
+        }else
+        {
+            mi->oldPage=pageID;mi->oldSlot=i;
+        }
+        myTable->infos.push_back(mi);
+    }
+    *(int*)(page+8188)=j;
+    bm->markDirty(index);
+    if (ii<m||p==m-1)
+    {
+        if (p==m-1)
+            myIndex->deleteData(values[p-1],pageID,-1);
+        else
+            myIndex->deleteData(values[m-1],pageID,-1);
+        myIndex->insertData(values[ii-1],pageID,-1);
+    }
+    return true;
 }
 
 int MyPage::searchData(Constraints* con,vector<MyData*> &res)

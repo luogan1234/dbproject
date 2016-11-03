@@ -7,6 +7,8 @@
 #include "../StaticMethod.h"
 #include "MyPage.h"
 #include "MyIndex.h"
+#include "MyFileIO.h"
+#include "MyIndex.h"
 
 using namespace std;
 
