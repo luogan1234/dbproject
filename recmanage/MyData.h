@@ -24,8 +24,8 @@ public:
 
     MyData(char* d,int offset,int l)
     {
-        len=l;data=new char[2000];
-        memcpy(data,d+offset,l);
+        len=l;data=new char[l];
+        memmove(data,d+offset,l);
     }
 
     MyData(std::string d)
@@ -35,9 +35,9 @@ public:
 
     void setData(std::string d)
     {
-        data=new char[2000];
         len=d.size();
-        memcpy(data,(char*)d.c_str(),len);
+        data=new char[len];
+        memmove(data,(char*)d.c_str(),len);
     }
 
     void print()

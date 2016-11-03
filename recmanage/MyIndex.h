@@ -48,9 +48,9 @@ public:
     bool insertDataClustered(MyData* myData);
     //范围在value1~value2之间，要求value1<=value2，type1为<=或<，type2为>=或>，或者取undefined表示不限制
     bool findData(MyValue* value1,int type1,MyValue* value2,int type2,std::vector<std::pair<int,int>> &res);
-
+    //pp=1是添加数据，唯一索引要求不重复，pp=2是删除数据，要求得有那个值才能删除
     bool searchData(MyValue* value,int page,int slot,int pp);
-
+    //slot为-1是簇集索引
     bool insertData(MyValue* value,int page,int slot);
 
     bool deleteData(MyValue* value,int page,int slot);

@@ -2,10 +2,21 @@
 // Created by luogan on 16-10-15.
 //
 
+#include <algorithm>
 #include "MyTable.h"
 #include "../StaticMethod.h"
 #include "MyPage.h"
 #include "MyIndex.h"
+
+using namespace std;
+
+bool MyTable::cmp(const pair<MyData*,MyValue*> &x,const pair<MyData*,MyValue*> &y)
+{
+    if (x.second->compare(y.second)==COMPARE_SMALLER)
+        return true;
+    else
+        return false;
+}
 
 void MyTable::deal()
 {
@@ -20,6 +31,8 @@ void MyTable::deal()
         indexingCol.push_back(*(short*)(page0+i*3+8));
         indexingType.push_back(*(page0+i*3+10));
     }
+    infos.clear();
+    infoClusters.clear();
 }
 
 bool MyTable::createIndex(short colID, char type)
@@ -41,6 +54,91 @@ bool MyTable::createIndex(short colID, char type)
     *(short*)(page0+*tot*3+8)=colID;
     *(page0+*tot*3+10)=type;
     bm->markDirty(index0);
+    int num,offset;
+    cols.getByOrder(colID,num,offset);
+    myIndex=myFileIO->getIndex(name,colID,this);
+    if (myIndex==0)
+    {
+        dropIndex(colID);
+        return false;
+    }
+    int pageNum=1;
+    vector<MyData*> res;
+    vector<int> pages,slots;
+    res.clear();pages.clear();slots.clear();
+    while (true)
+    {
+        char* page=bm->getPage(fileID,pageNum,index);
+        int* used=(int*)page;
+        for (int i=0;i<*used;++i)
+        {
+            int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
+            MyPage page(fileID,*dataPage,bm,this);
+            page.findAllData(res,pages,slots);
+        }
+        pageNum=*(int*)(page+8188);
+        if (pageNum==-1)
+            break;
+    }
+    int i,m=res.size();
+    if (type==INDEX_CLUSTERED)
+    {
+        vector<pair<MyData*,MyValue*>> sorts;
+        sorts.clear();
+        for (i=0;i<m;++i)
+        {
+            MyValue* value=new MyValue;
+            res[i]->getValue(num,offset,&cols.cols[colID],*value);
+            sorts.push_back(make_pair(res[i],value));
+        }
+        sort(sorts.begin(),sorts.end(),cmp);
+        for (i=0;i<m-1;++i)
+            if (MyValue::compare(sorts[i].second,sorts[i+1].second)==COMPARE_EQUAL)
+            {
+                dropIndex(colID);
+                return false;
+            }
+        pageNum=1;
+        while (true)
+        {
+            char* page=bm->getPage(fileID,pageNum,index);
+            int* used=(int*)page;
+            for (int i=0;i<*used;++i)
+            {
+                int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
+                MyPage page(fileID,*dataPage,bm,this);
+                page.deleteAllData();
+                bm->markDirty(index);
+            }
+            pageNum=*(int*)(page+8188);
+            if (pageNum==-1)
+                break;
+        }
+        char* page0=bm->getPage(fileID,0,index);
+        int *totalUsed=(int*)page0;
+        *totalUsed=2;
+        bm->markDirty(index);
+        page0=bm->getPage(fileID,1,index);
+        memset(page0,0,PAGE_SIZE);
+        *(int*)(page0+8188)=-1;
+        bm->markDirty(index);
+        insertData(res);
+        for (i=0;i<m;++i)
+            delete sorts[i].first,sorts[i].second;
+    } else
+    {
+        for (i=0;i<m;++i)
+        {
+            MyValue* value=new MyValue;
+            res[i]->getValue(num,offset,&cols.cols[colID],*value);
+            if (!myIndex->insertData(value,pages[i],slots[i]))
+            {
+                dropIndex(colID);
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 bool MyTable::dropIndex(short colID)
@@ -67,25 +165,28 @@ bool MyTable::dropIndex(short colID)
     return false;
 }
 
+bool MyTable::getAllIndex(vector<pair<short,char>> indexs)
+{
+    indexs.clear();
+    for (int i=0;i<indexingTot;++i)
+    {
+        indexs.push_back(make_pair(indexingCol[i],indexingType[i]));
+    }
+    return true;
+}
+
 void MyTable::init()
 {
     char* page0=bm->getPage(fileID,0,index);        //0号页记录int totalUsedPage, int indexingTot, short indexingID0, char indexingType0,int indexingRootPage0...
     int *totalUsed=(int*)page0;
+    memset(page0,0,PAGE_SIZE);
     *totalUsed=2;
     int *indexingTot=(int*)page0+1;
     *indexingTot=0;
-    int i;
-    for (i=2;i<PAGE_SIZE/4;++i)
-    {
-        *(int*)(page0+i*4)=0;
-    }
     bm->markDirty(index);
 
     page0=bm->getPage(fileID,1,index);      //1号页记录int dataUsedPage, int dataPageID0, int spaceLeft0...,int nextRootDataPage
-    for (i=0;i<PAGE_SIZE/4;++i)
-    {
-        *(int*)(page0+i*4)=0;
-    }
+    memset(page0,0,PAGE_SIZE);
     *(int*)(page0+8188)=-1;
     bm->markDirty(index);
 }
@@ -104,12 +205,14 @@ void MyTable::pageUsedUpdate()
 bool MyTable::insertData(MyData *data)
 {
     for (int i=0;i<indexingTot;++i)
-        if (indexingType[i]==INDEX_CLUSTERED||indexingType[i]==INDEX_CLUSTERED_UNIQUE)
+        if (indexingType[i]==INDEX_CLUSTERED)
         {
             MyIndex* myIndex=myFileIO->getIndex(name,indexingCol[i],this);
             if (myIndex==0)
                 break;
-            myIndex->insertDataClustered(data);
+            if (!myIndex->insertDataClustered(data))
+                return false;
+            pageUsedUpdate();
             return true;
         }
     return _insertData(data);
@@ -128,7 +231,7 @@ bool MyTable::_insertData(MyData *data)
             int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
             if (*spaceLeft>=data->len+4)
             {
-                MyPage page(fileID,*dataPage,bm);
+                MyPage page(fileID,*dataPage,bm,this);
                 *spaceLeft=page.insertData(data);
                 bm->markDirty(index);
                 pageUsedUpdate();
@@ -141,7 +244,7 @@ bool MyTable::_insertData(MyData *data)
             *used+=1;
             *dataPage=totalUsed;
             totalUsed+=1;
-            MyPage page(fileID,*dataPage,bm);
+            MyPage page(fileID,*dataPage,bm,this);
             page.init();
             *spaceLeft=page.insertData(data);
             bm->markDirty(index);
@@ -169,14 +272,16 @@ bool MyTable::_insertData(MyData *data)
 bool MyTable::insertData(std::vector<MyData*> &data)
 {
     for (int i=0;i<indexingTot;++i)
-        if (indexingType[i]==INDEX_CLUSTERED||indexingType[i]==INDEX_CLUSTERED_UNIQUE)
+        if (indexingType[i]==INDEX_CLUSTERED)
         {
             MyIndex* myIndex=myFileIO->getIndex(name,indexingCol[i],this);
             if (myIndex==0)
                 break;
+            bool p=true;
             for (size_t j=0;j<data.size();++j)
-                myIndex->insertDataClustered(data[j]);
-            return true;
+                p&=myIndex->insertDataClustered(data[j]);
+            pageUsedUpdate();
+            return p;
         }
     return _insertData(data);
 }
@@ -194,7 +299,7 @@ bool MyTable::_insertData(std::vector<MyData*> &data)
             int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
             while (k<m&&*spaceLeft>=data[k]->len+4)
             {
-                MyPage page(fileID,*dataPage,bm);
+                MyPage page(fileID,*dataPage,bm,this);
                 *spaceLeft=page.insertData(data[k]);
                 bm->markDirty(index);++k;
             }
@@ -210,7 +315,7 @@ bool MyTable::_insertData(std::vector<MyData*> &data)
             *used+=1;
             *dataPage=totalUsed;
             totalUsed+=1;
-            MyPage page(fileID,*dataPage,bm);
+            MyPage page(fileID,*dataPage,bm,this);
             *spaceLeft=page.init();
             while (k<m&&*spaceLeft>=data[k]->len+4)
             {
@@ -251,7 +356,7 @@ bool MyTable::searchData(Constraints* con,std::vector<MyData*> &res)
         for (int i=0;i<used;++i)
         {
             int *dataPage=(int*)(page+i*8+4);
-            MyPage page(fileID,*dataPage,bm);
+            MyPage page(fileID,*dataPage,bm,this);
             page.searchData(con,res);
         }
         pageNum=*(int*)(page+8188);
@@ -270,7 +375,7 @@ bool MyTable::deleteData(Constraints* con)
         for (int i=0;i<used;++i)
         {
             int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
-            MyPage page(fileID,*dataPage,bm);
+            MyPage page(fileID,*dataPage,bm,this);
             *spaceLeft=page.deleteData(con);
             bm->markDirty(index);
         }
@@ -292,7 +397,7 @@ bool MyTable::updateData(Constraints* con,Updates* upd)
         for (int i=0;i<used;++i)
         {
             int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
-            MyPage page(fileID,*dataPage,bm);
+            MyPage page(fileID,*dataPage,bm,this);
             *spaceLeft=page.updateData(con,upd,updated);
             bm->markDirty(index);
         }
@@ -306,4 +411,45 @@ bool MyTable::updateData(Constraints* con,Updates* upd)
             return true;
         }
     }
+}
+
+bool MyTable::indexInfoUpdate()
+{
+    int i,k,m=infos.size(),n=infoClusters.size();
+    for (k=0;k<indexingTot;++k)
+    {
+        myIndex=myFileIO->getIndex(name,indexingCol[k],this);
+        if (myIndex==0)
+            continue;
+        if (indexingType[k]==INDEX_CLUSTERED)
+        {
+            for (i=0;i<n;++i)
+            {
+                ModifyInfoForCluster* mi=infoClusters[i];
+                if (mi->oldValue!=0)
+                    myIndex->deleteData(mi->oldValue,mi->page,-1);
+                if (mi->newValue!=0)
+                    myIndex->insertData(mi->newValue,mi->page,-1);
+            }
+        } else
+        {
+            int num,offset;
+            cols.getByOrder(indexingCol[k],num,offset);
+            for (i=0;i<m;++i)
+            {
+                ModifyInfo* mi=infos[i];
+                MyValue value;
+                mi->data->getValue(num,offset,&cols.cols[k],value);
+                if (mi->oldPage!=-1)
+                    myIndex->deleteData(&value,mi->oldPage,mi->oldSlot);
+                if (mi->newPage!=-1)
+                    myIndex->insertData(&value,mi->newPage,mi->newSlot);
+            }
+        }
+    }
+    for (i=0;i<m;++i)
+        delete infos[i];
+    for (i=0;i<n;++i)
+        delete infoClusters[i];
+    infos.clear();infoClusters.clear();
 }

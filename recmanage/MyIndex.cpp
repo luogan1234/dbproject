@@ -109,7 +109,7 @@ bool MyIndex::insertDataClustered(MyData* myData)
         if (resPage!=-1)
             break;
     }
-
+    return true;
 }
 
 bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vector<pair<int,int>> &res)
@@ -323,9 +323,9 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
         else
             head=8;
         eleNum=*(int*)(page0+8188);
-        int k=1;
+        int k=0;
         int* next=(int*)(page0+8184),*ele;
-        while (k<=eleNum)
+        while (k<eleNum)
         {
             ele=next;++k;next-=1;
             MyValue v;
@@ -347,9 +347,9 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     ;
             }
             comRes=value->compare(&v);
-            if (comRes==COMPARE_SMALLER||comRes==COMPARE_EQUAL||k>eleNum)
+            if (comRes==COMPARE_SMALLER||comRes==COMPARE_EQUAL||k>=eleNum)
             {
-                if (k<=eleNum&&comRes==COMPARE_EQUAL)
+                if (k<eleNum&&comRes==COMPARE_EQUAL)
                 {
                     if (type==INDEX_UNCLUSTERED)
                     {

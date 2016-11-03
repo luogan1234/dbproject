@@ -10,6 +10,7 @@
 #include "../searchanalysis/Constraints.h"
 #include "../searchanalysis/Updates.h"
 #include "../bufmanager/BufPageManager.h"
+#include "MyTable.h"
 
 class MyPage {
 private:
@@ -19,23 +20,21 @@ public:
     BufPageManager* bm;
     char* page;
     std::vector<int> reserves;
-    MyPage(int f,int p,BufPageManager *bm)
+    MyTable* myTable;
+    MyPage(int f,int p,BufPageManager *bm,MyTable* m)
     {
         fileID=f;pageID=p;
         this->bm=bm;
         spaceLeft=-1;
         page=bm->getPage(fileID,pageID,index);
+        myTable=m;
     }
 
     int init()
     {
-        int i;
-        for (i=0;i<PAGE_SIZE/4;++i)
-        {
-            *(int*)(page+i*4)=(int)0;
-        }
+        memset(page,0,PAGE_SIZE);
         bm->markDirty(index);
-        return spaceLeft=8188;
+        return spaceLeft=8184;
     }
 
     int insertData(MyData *data);
@@ -46,7 +45,11 @@ public:
 
     int updateData(Constraints* con,Updates* upd,std::vector<MyData*> &updated);
 
-    int findData(std::vector<std::pair<int,int>> &res);
+    bool findData(std::vector<int> &slots,std::vector<MyData*> &res);
+
+    bool findAllData(std::vector<MyData*> &res,std::vector<int> &pages,std::vector<int> &slots);
+
+    int deleteAllData();
 };
 
 

@@ -3,21 +3,25 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/consts.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/ModifyInfoForCluster.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyFileIO.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/ModifyInfoForCluster.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyCol.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyData.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyData.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyPage.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyIndex.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyFileIO.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/ModifyInfo.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/ModifyInfo.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyIndex.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyValue.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyPage.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyCol.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/TableCols.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyValue.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyIndex.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyFileIO.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/MyTable.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyData.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/recmanage/MyData.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/recmanage/TableCols.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/StaticMethod.cpp" isTestSource="false" />
