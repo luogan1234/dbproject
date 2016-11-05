@@ -21,6 +21,8 @@ class MyTable
 private:
     static bool cmp(const pair<MyData*,MyValue*> &x,const pair<MyData*,MyValue*> &y);
 
+    static bool cmp2(const pair<MyValue*,int> &x,const pair<MyValue*,int> &y);
+
     bool _insertData(MyData *data);
 
     bool _insertData(std::vector<MyData*> &data);
@@ -32,6 +34,7 @@ public:
     int fileID,index,totalUsed,_totalUsed,indexingTot;
     std::vector<short> indexingCol;
     std::vector<char> indexingType;
+    MyIndex* indexes[MAX_COL_NUM];
     std::vector<ModifyInfo*> infos;
     std::vector<ModifyInfoForCluster*> infoClusters;
 
@@ -78,6 +81,16 @@ public:
     bool getAllIndex(std::vector<std::pair<short,char>> indexs);
 
     bool indexInfoUpdate();
+
+    MyIndex* getClusteredIndex();
+
+    MyIndex* getIndex(int colID);
+
+    int getClusteredID();
+
+    bool isUnique(MyData*); //重复则返回false
+
+    bool isUnique(vector<MyData*> &datas);  //有重复就去掉重复的，并返回false
 
 };
 

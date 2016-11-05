@@ -12,6 +12,11 @@ class ModifyInfoForCluster {
 public:
     MyValue* oldValue,*newValue;
     int page;
+
+    ~ModifyInfoForCluster()
+    {
+        delete oldValue,newValue;
+    }
 };
 
 

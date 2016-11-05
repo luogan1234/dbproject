@@ -161,14 +161,17 @@ int MyPage::searchData(Constraints* con,vector<MyData*> &res)
 
 int MyPage::deleteData(Constraints* con)
 {
-    int* eleNum=(int*)(page+8188);
+    int eleNum=*(int*)(page+8188);
     int k=0,i=0;
     int* next=(int*)(page+8184),*ele;
     reserves.clear();
-    while (k<*eleNum)
+    MyData* myData,*lastData;
+    while (k<eleNum)
     {
         ele=next;++k;next-=1;
-        MyData* myData=new MyData(page,*ele,*next-*ele);
+        myData=new MyData(page,*ele,*next-*ele);
+        if (k==eleNum)
+            lastData=new MyData(page,*ele,*next-*ele);
         if (!con->checkData(myData))
         {
             reserves.push_back(k);
@@ -193,6 +196,18 @@ int MyPage::deleteData(Constraints* con)
             bm->markDirty(index);
         }
     }
+    myIndex=myTable->getClusteredIndex();
+    int m=reserves.size();
+    needChange=false;
+    if (eleNum>reserves[m-1]&&myIndex!=0)
+    {
+        needChange=true;
+        int num,offset,colID=myTable->getClusteredID();
+        myTable->cols.getByOrder(colID,num,offset);
+        lastData->getValue(num,offset,&myTable->cols.cols[colID],myValue);
+        myIndex->deleteData(&myValue,pageID,-1);
+    }
+    delete lastData;
     return _deleteData();
 }
 
@@ -204,23 +219,21 @@ int MyPage::_deleteData()
     position.clear();
     position.push_back(0);
     size_t m=reserves.size();
+    MyData* lastData;
     for (i=0;i<m;++i)
     {
-        if (i<reserves[i]-1)
+        pos=*(int*)(page+8188-4*reserves[i]);
+        len=*(int*)(page+8184-4*reserves[i])-pos;
+        if (i==m-1)
         {
-            pos=*(int*)(page+8188-4*reserves[i]);
-            len=*(int*)(page+8184-4*reserves[i])-pos;
-            if (len>0)
-            {
-                memmove(page+last,page+pos,len);
-                last+=len;
-            }
-            position.push_back(last);
-        }else
-        {
-            last=*(int*)(page+8184-4*reserves[i]);
-            position.push_back(last);
+            lastData=new MyData(page,pos,len);
         }
+        if (i<reserves[i]-1&&len>0)
+        {
+            memmove(page+last,page+pos,len);
+        }
+        last+=len;
+        position.push_back(last);
     }
     for (i=0;i<=m;++i)
     {
@@ -228,19 +241,32 @@ int MyPage::_deleteData()
     }
     *eleNum=reserves.size();
     spaceLeft=8184-*(int*)(page+8184-4**eleNum)-4**eleNum;
+    if (needChange&&*eleNum>0)
+    {
+        int num,offset,colID=myTable->getClusteredID();
+        myTable->cols.getByOrder(colID,num,offset);
+        lastData->getValue(num,offset,&myTable->cols.cols[colID],myValue);
+        myIndex->insertData(&myValue,pageID,-1);
+    }
+    delete lastData;
     return spaceLeft;
 }
 
 int MyPage::updateData(Constraints* con,Updates* upd,vector<MyData*> &updated)
 {
-    int* eleNum=(int*)(page+8188);
+    int eleNum=*(int*)(page+8188);
     int k=0,i=0;
     int* next=(int*)(page+8184),*ele;
     reserves.clear();
-    while (k<*eleNum)
+    MyData *lastData;
+    while (k<eleNum)
     {
         ele=next;++k;next-=1;
         MyData *myData=new MyData(page,*ele,*next-*ele);
+        if (k==eleNum)
+        {
+            lastData=new MyData(page,*ele,*next-*ele);
+        }
         if (!con->checkData(myData))
         {
             reserves.push_back(k);
@@ -297,6 +323,18 @@ int MyPage::updateData(Constraints* con,Updates* upd,vector<MyData*> &updated)
             }
         }
     }
+    myIndex=myTable->getClusteredIndex();
+    int m=reserves.size();
+    needChange=false;
+    if (eleNum>reserves[m-1]&&myIndex!=0)
+    {
+        needChange=true;
+        int num,offset,colID=myTable->getClusteredID();
+        myTable->cols.getByOrder(colID,num,offset);
+        lastData->getValue(num,offset,&myTable->cols.cols[colID],myValue);
+        myIndex->deleteData(&myValue,pageID,-1);
+    }
+    delete lastData;
     return _deleteData();
 }
 

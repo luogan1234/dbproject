@@ -22,9 +22,7 @@ void MyIndex::init()
     *(int*)(page0+16)=rootPage;
     bm->markDirty(index0);
     char *page1=bm->getPage(fileID,1,index0);
-    int i;
-    for (i=0;i<PAGE_SIZE/4;++i)
-        *(int*)(page1+i*4)=0;
+    memset(page1,0,PAGE_SIZE);
     *(int*)page1=PAGE_LEAF;
     *(int*)(page1+8188)=0;
     *(int*)(page1+8184)=4;
@@ -172,7 +170,7 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
                 }
                 comRes=value1->compare(&v);
             }
-            if (type1==COMPARE_UNDEFINED||comRes==COMPARE_SMALLER&&(type1==COMPARE_SMALLER_EQUAL||type1==COMPARE_SMALLER)||comRes==COMPARE_EQUAL&&type1==COMPARE_SMALLER_EQUAL)
+            if (type1==COMPARE_UNDEFINED||comRes==COMPARE_SMALLER&&(type1==COMPARE_SMALLER_EQUAL||type1==COMPARE_SMALLER)||comRes==COMPARE_EQUAL&&type1==COMPARE_SMALLER_EQUAL||k>eleNum)
             {
                 if (pageType==PAGE_NORMAL)
                 {
@@ -180,14 +178,42 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
                     break;
                 }else
                 {
-                    leftPage=pageNow;--k;
+                    if (k>eleNum&&(comRes==COMPARE_LARGER||comRes==COMPARE_EQUAL&&type1==COMPARE_LARGER))
+                        ++k;
+                    --k;
+                    while (k>eleNum)
+                    {
+                        pageNow=*(int*)(page+*(int*)(page+8184-eleNum*4));
+                        if (pageNow<=0)
+                            return true;
+                        k=1;
+                        page=bm->getPage(fileID,pageNow,index);
+                        eleNum=*(int*)(page+8188);
+                    }
+                    leftPage=pageNow;
                     leftSlot=k;
+                    ele=(int*)(page+8188-4*k);
+                    vl.isNull=false;
+                    vl.type=valueType;
+                    vl.res=page+*ele+head;
+                    switch (valueType)
+                    {
+                        case TYPE_INT:
+                            vl.dataLen=4;
+                            break;
+                        case TYPE_CHAR:
+                            vl.dataLen=valueLen;
+                            break;
+                        case TYPE_VARCHAR:
+                            vl.dataLen=*next-*ele-head;
+                            break;
+                        default:
+                            ;
+                    }
                     break;
                 }
             }
         }
-        if (k>eleNum)
-            return true;
         if (leftSlot!=-1)
             break;
     }
@@ -211,7 +237,6 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
         }
         eleNum=*(int*)(page+8188);
         int k=1;
-        bool p=false;
         int* next=(int*)(page+8184),*ele;
         while (k<=eleNum)
         {
@@ -238,67 +263,81 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
                 }
                 comRes=value2->compare(&v);
             }
-            if (type2==COMPARE_UNDEFINED||comRes==COMPARE_LARGER&&(type2==COMPARE_LARGER_EQUAL||type2==COMPARE_LARGER)||comRes==COMPARE_EQUAL&&type2==COMPARE_LARGER_EQUAL)
+            if (comRes==COMPARE_SMALLER&&(type2==COMPARE_LARGER_EQUAL||type2==COMPARE_LARGER)||comRes==COMPARE_EQUAL&&type2==COMPARE_LARGER||k>eleNum)
             {
-                p=true;
                 if (pageType==PAGE_NORMAL)
                 {
-                    pageNow=*(int*)(page+*ele);
+                    pageNow=*(int*)(page+*ele);--k;
+                    break;
                 }else
                 {
-                    rightPage=pageNow;
-                    rightSlot=k-1;
-                }
-                if (comRes==COMPARE_EQUAL&&type2==COMPARE_LARGER_EQUAL&&type!=INDEX_UNCLUSTERED)
-                    break;
-            }
-            else
-            {
-                if (type==INDEX_CLUSTERED)
-                {
-                    p=true;
-                    if (pageType==PAGE_NORMAL)
+                    --k;
+                    if (type!=INDEX_CLUSTERED&&type2!=COMPARE_UNDEFINED&&(comRes==COMPARE_SMALLER||comRes==COMPARE_EQUAL&&type2==COMPARE_LARGER))
+                        --k;
+                    while (k<1)
                     {
-                        pageNow=*(int*)(page+*ele);
-                    }else
-                    {
-                        rightPage=pageNow;
-                        rightSlot=k-1;
+                        pageNow=*(int*)(page+*(int*)(page+8184-eleNum*4)+4);
+                        if (pageNow<=0)
+                            return true;
+                        page=bm->getPage(fileID,pageNow,index);
+                        eleNum=*(int*)(page+8188);
+                        k=eleNum;
                     }
+                    rightPage=pageNow;
+                    rightSlot=k;
+                    ele=(int*)(page+8188-4*k);
+                    vr.isNull=false;
+                    vr.type=valueType;
+                    vr.res=page+*ele+head;
+                    switch (valueType)
+                    {
+                        case TYPE_INT:
+                            vr.dataLen=4;
+                            break;
+                        case TYPE_CHAR:
+                            vr.dataLen=valueLen;
+                            break;
+                        case TYPE_VARCHAR:
+                            vr.dataLen=*next-*ele-head;
+                            break;
+                        default:
+                            ;
+                    }
+                    break;
                 }
-                break;
             }
         }
-        if (!p)
-            return true;
         if (rightSlot!=-1)
             break;
     }
-    while (true)
-    {
-        char *page=bm->getPage(fileID,leftPage,index);
-        int eleNum=*(int*)(page+8188),n,i;
-        if (leftPage!=rightPage)
-            n=eleNum;
-        else
-            n=rightSlot;
-        for (i=leftSlot;i<=n;++i)
+    comRes=vl.compare(&vr);
+    if (comRes==COMPARE_SMALLER||comRes==COMPARE_EQUAL)
+        while (true)
         {
-            int *ele=(int*)(page+8188-4*i);
-            if (type==INDEX_CLUSTERED)
+            char *page=bm->getPage(fileID,leftPage,index);
+            int eleNum=*(int*)(page+8188),n,i;
+            if (leftPage!=rightPage)
+                n=eleNum;
+            else
+                n=rightSlot;
+            for (i=leftSlot;i<=n;++i)
             {
-                res.push_back(make_pair(*(int*)(page+*ele),-1));
-            } else
-            {
-                res.push_back(make_pair(*(int*)(page+*ele),*(int*)(page+*ele+4)));
+                int *ele=(int*)(page+8188-4*i);
+                if (type==INDEX_CLUSTERED)
+                {
+                    res.push_back(make_pair(*(int*)(page+*ele),-1));
+                } else
+                {
+                    res.push_back(make_pair(*(int*)(page+*ele),*(int*)(page+*ele+4)));
+                }
             }
+            if (leftPage==rightPage)
+                break;
+            int ele=*(int*)(page+8184-4*eleNum);
+            int tar=*(int*)(page+ele);
+            leftPage=tar;leftSlot=1;
         }
-        if (leftPage==rightPage)
-            break;
-        int ele=*(int*)(page+8188-4*eleNum);
-        int tar=*(int*)(page+ele);
-        leftPage=tar;leftSlot=1;
-    }
+    return true;
 }
 
 bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
@@ -327,6 +366,14 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
         eleNum=*(int*)(page0+8188);
         int k=0;
         int* next=(int*)(page0+8184),*ele;
+        if (eleNum==0)
+        {
+            pages.push_back(page0);
+            nows.push_back(pageNow);
+            indexs.push_back(index);
+            slots.push_back(1);
+            return true;
+        }
         while (k<eleNum)
         {
             ele=next;++k;next-=1;
@@ -365,7 +412,7 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     pages.push_back(page0);
                     nows.push_back(pageNow);
                     indexs.push_back(index);
-                    slots.push_back(k-1);
+                    slots.push_back(k);
                     pageNow=*(int*)(page0+*ele);
                     break;
                 } else
@@ -375,10 +422,10 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     indexs.push_back(index);
                     int _page=-1,_slot=-1;
                     if (comRes==COMPARE_LARGER)
-                        slots.push_back(k);
+                        slots.push_back(k+1);
                     else
                     {
-                        slots.push_back(k-1);
+                        slots.push_back(k);
                         _page=*(int*)page0+*ele;
                         if (type!=INDEX_CLUSTERED)
                             _slot=*(int*)page0+*ele+4;
@@ -400,9 +447,6 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
     {
         char *page0;
         int k,eleNum;
-        MyValue vl,vn,vr;
-        MyValue* values=new MyValue[2000];
-        vl.res=new char[2000];vn.res=new char[2000];vr.res=new char[2000];
         *(int*)vl.res=page;
         if (type==INDEX_CLUSTERED)
         {
@@ -421,7 +465,7 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
             if (vl.dataLen==0&&vn.dataLen==0&&vr.dataLen==0)
                 break;
             page0=pages[o];k=slots[o];
-            int i,j=0,tot=0;eleNum=*(int*)page0+8188;
+            int i,j=0,tot=0;eleNum=*(int*)(page0+8188);
             for (i=1;i<=eleNum+1;++i)
             {
                 if (i==k&&vl.dataLen>0)
@@ -454,7 +498,9 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
                     tot+=vr.dataLen+4;
                 }
             }
-            int ii=j+1,offset,p,nextPage=*(int*)(page0+*(int*)(page0+8184-eleNum*4)),prevPage=*(&nextPage+1);
+            int ii=j+1,offset,p;
+            int nextPage=*(int*)(page0+*(int*)(page0+8184-eleNum*4));
+            int prevPage=*(int*)(page0+4+*(int*)(page0+8184-eleNum*4));
             if (tot>8000)
             {
                 int index1;
@@ -491,6 +537,7 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
                     *(int*)(page1+offset)=nextPage;
                     *(int*)(page1+offset+4)=nows[o];
                 }
+                i=j;
                 if (o==m)
                 {
                     switch (type)
@@ -536,6 +583,7 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
                 }
             }
             *(int*)(page0+8188-ii*4)=offset;
+            *(int*)(page0+8188)=ii-1;
             for (i=ii-1;i>=k;--i)
             {
                 offset-=values[i].dataLen;
@@ -587,10 +635,6 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
             *(int*)(page00+16)=rootPage;
             bm->markDirty(index0);
         }
-        delete []values;
-        delete vl.res;
-        delete vn.res;
-        delete vr.res;
         return true;
     }
     return false;

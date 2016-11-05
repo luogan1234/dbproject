@@ -20,6 +20,15 @@ bool MyTable::cmp(const pair<MyData*,MyValue*> &x,const pair<MyData*,MyValue*> &
         return false;
 }
 
+bool MyTable::cmp2(const pair<MyValue*,int> &x,const pair<MyValue*,int> &y)
+{
+    int comRes=x.first->compare(y.first);
+    if (comRes==COMPARE_SMALLER||comRes==COMPARE_EQUAL&&x.second<y.second)
+        return true;
+    else
+        return false;
+}
+
 void MyTable::deal()
 {
     indexingCol.clear();
@@ -37,6 +46,78 @@ void MyTable::deal()
     infoClusters.clear();
 }
 
+bool MyTable::isUnique(MyData *data)
+{
+    int i,num,offset,colID;
+    MyValue value;
+    vector<pair<int,int>> res;
+    res.clear();
+    for (i=0;i<indexingTot;++i)
+        if (indexingType[i]==INDEX_UNCLUSTERED_UNIQUE)
+        {
+            colID=indexingCol[i];
+            cols.getByOrder(colID,num,offset);
+            data->getValue(num,offset,&cols.cols[colID],value);
+            myIndex=myFileIO->getIndex(name,colID,this);
+            myIndex->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
+            if (res.size()>0)
+                return false;
+        }
+    return true;
+}
+
+bool MyTable::isUnique(vector<MyData*> &datas)
+{
+    int i,num,offset,colID,j,m=datas.size();
+    MyValue* values=new MyValue[m];
+    bool* pp=new bool[m];
+    bool p=true;
+    MyValue value;
+    vector<pair<int,int>> res;
+    vector<pair<MyValue*,int>> sorts;
+    res.clear();
+    for (i=0;i<indexingTot;++i)
+        if (indexingType[i]==INDEX_UNCLUSTERED_UNIQUE)
+            indexes[i]=myFileIO->getIndex(name,indexingCol[i],this);
+    for (i=0;i<indexingTot;++i)
+        if (indexingType[i]==INDEX_UNCLUSTERED_UNIQUE)
+        {
+            colID=indexingCol[i];
+            cols.getByOrder(colID,num,offset);
+            m=datas.size();
+            for (j=0;j<m;++j)
+            {
+                datas[j]->getValue(num,offset,&cols.cols[colID],value);
+                indexes[i]->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
+                if (res.size()>0)
+                {
+                    p=false;
+                    res.clear();
+                    datas.erase(datas.begin()+j);
+                    --j;--m;
+                }
+            }
+            sorts.clear();
+
+            for (j=0;j<m;++j)
+            {
+                pp[j]=true;
+                datas[j]->getValue(num,offset,&cols.cols[colID],values[j]);
+                sorts.push_back(make_pair(&values[j],j));
+            }
+            sort(sorts.begin(),sorts.end(),cmp2);
+            for (j=1;j<m;++j)
+                if (sorts[j].first->compare(sorts[j-1].first)==COMPARE_EQUAL)
+                    pp[sorts[j].second]=false;
+            for (j=m-1;j>=0;--j)
+                if (!pp[j])
+                    sorts.erase(sorts.begin()+j);
+        }
+    delete []values;
+    delete []pp;
+    return p;
+}
+
 bool MyTable::createIndex(short colID, char type)
 {
     for (int i=0;i<indexingTot;++i)
@@ -52,9 +133,9 @@ bool MyTable::createIndex(short colID, char type)
     int index0;
     char* page0=bm->getPage(fileID,0,index0);
     int *tot=(int*)(page0+4);
-    *tot+=1;
     *(short*)(page0+*tot*3+8)=colID;
     *(page0+*tot*3+10)=type;
+    *tot+=1;
     bm->markDirty(index0);
     int num,offset;
     cols.getByOrder(colID,num,offset);
@@ -131,9 +212,9 @@ bool MyTable::createIndex(short colID, char type)
     {
         for (i=0;i<m;++i)
         {
-            MyValue* value=new MyValue;
-            res[i]->getValue(num,offset,&cols.cols[colID],*value);
-            if (!myIndex->insertData(value,pages[i],slots[i]))
+            MyValue value;
+            res[i]->getValue(num,offset,&cols.cols[colID],value);
+            if (!myIndex->insertData(&value,pages[i],slots[i]))
             {
                 dropIndex(colID);
                 return false;
@@ -176,6 +257,37 @@ bool MyTable::getAllIndex(vector<pair<short,char>> indexs)
     }
     return true;
 }
+
+MyIndex* MyTable::getClusteredIndex()
+{
+    for (int i=0;i<indexingTot;++i)
+        if (indexingType[i]==INDEX_CLUSTERED)
+        {
+            return myFileIO->getIndex(name,indexingCol[i],this);
+        }
+    return 0;
+}
+
+MyIndex* MyTable::getIndex(int colID)
+{
+    for (int i=0;i<indexingTot;++i)
+        if (indexingCol[i]==colID)
+        {
+            return myFileIO->getIndex(name,indexingCol[i],this);
+        }
+    return 0;
+}
+
+int MyTable::getClusteredID()
+{
+    for (int i=0;i<indexingTot;++i)
+        if (indexingType[i]==INDEX_CLUSTERED)
+        {
+            return indexingCol[i];
+        }
+    return -1;
+}
+
 
 void MyTable::init()
 {
@@ -437,9 +549,10 @@ bool MyTable::indexInfoUpdate()
         {
             int num,offset;
             cols.getByOrder(indexingCol[k],num,offset);
+            ModifyInfo* mi;
             for (i=0;i<m;++i)
             {
-                ModifyInfo* mi=infos[i];
+                mi=infos[i];
                 MyValue value;
                 mi->data->getValue(num,offset,&cols.cols[k],value);
                 if (mi->oldPage!=-1)

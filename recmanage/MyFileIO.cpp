@@ -121,7 +121,6 @@ bool MyFileIO::createTable(string tableName,string tableFormat)
     fm->openFile(tar,fileIDInit);
     MyTable mt=MyTable(bm,this,fileIDInit,tableName,tableFormat);
     mt.init();
-    fm->closeFile(fileIDInit);
     saveTableInfo();
     return true;
 }
@@ -139,7 +138,7 @@ bool MyFileIO::dropTable(string tableName)
             string tar=nowDBPath+"/"+tableName+".data";
             string ins="rm "+tar;
             system(ins.c_str());
-            fm->closeFile(tableName);
+            fm->closeFile(tar);
             return true;
         }
     return false;
@@ -177,7 +176,7 @@ bool MyFileIO::createIndex(string name,short colID,char type,int valueType,int v
 {
     if (nowDBPath=="")
         return false;
-    char *id;
+    char id[4];
     sprintf(id,"%d",int(colID));
     string ID=id;
     string tar=nowDBPath+"/"+name+"_"+ID+".index";
@@ -185,7 +184,6 @@ bool MyFileIO::createIndex(string name,short colID,char type,int valueType,int v
     int fileIDInit;
     fm->openFile(tar,fileIDInit);
     MyIndex mi=MyIndex(bm,name,colID,type,valueType,valueLen,fileIDInit);
-    fm->closeFile(fileIDInit);
     return true;
 }
 
@@ -193,12 +191,11 @@ bool MyFileIO::dropIndex(string name,short colID)
 {
     if (nowDBPath=="")
         return false;
-    char *id;
+    char id[4];
     sprintf(id,"%d",int(colID));
     string ID=id;
     string tar=nowDBPath+"/"+name+"_"+ID+".index";
-    if (opendir(tar.c_str())==NULL)
-        return false;
+    fm->closeFile(tar);
     string ins="rm -rf "+tar;
     system(ins.c_str());
     return true;
@@ -207,13 +204,11 @@ bool MyFileIO::dropIndex(string name,short colID)
 MyIndex* MyFileIO::getIndex(string name,short colID,MyTable* myTable)
 {
     if (nowDBPath=="")
-        return false;
-    char *id;
+        return 0;
+    char id[4];
     sprintf(id,"%d",int(colID));
     string ID=id;
     string tar=nowDBPath+"/"+name+"_"+ID+".index";
-    if (opendir(tar.c_str())==NULL)
-        return false;
     fm->openFile(tar,fileID);
     MyIndex *mi=new MyIndex(bm,name,colID,fileID,myTable);
     return mi;

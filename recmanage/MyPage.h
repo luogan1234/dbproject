@@ -21,6 +21,9 @@ public:
     char* page;
     std::vector<int> reserves;
     MyTable* myTable;
+    MyIndex* myIndex;
+    bool needChange;
+    MyValue myValue;
     MyPage(int f,int p,BufPageManager *bm,MyTable* m)
     {
         fileID=f;pageID=p;
