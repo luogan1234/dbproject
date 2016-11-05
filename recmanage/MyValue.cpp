@@ -4,6 +4,35 @@
 
 #include "MyValue.h"
 #include "../consts.h"
+#include <iostream>
+using namespace std;
+
+void MyValue::print()
+{
+    int i;
+    switch (type)
+    {
+        case TYPE_INT:
+            cout<<*(int*)res<<endl;
+            break;
+        case TYPE_CHAR:
+            for (i=0;i<dataLen;++i)
+            {
+                cout<<res[i];
+            }
+            cout<<endl;
+            break;
+        case TYPE_VARCHAR:
+            for (i=0;i<dataLen;++i)
+            {
+                cout<<res[i];
+            }
+            cout<<endl;
+            break;
+        default:
+            ;
+    }
+}
 
 int MyValue::compare(MyValue* v)
 {

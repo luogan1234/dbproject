@@ -20,11 +20,18 @@ public:
     Constraints(int p)
     {
         ranp=p;tot=0;
-        if (ranp<1) ranp=1;
     }
 
     bool checkData(MyData *data)
     {
+        if (ranp==0)
+        {
+            int v=*(int*)(data->data+1);
+            if (true)
+                return true;
+            else
+                return false;
+        }
         ++tot;
         if (tot%ranp==0)
             return true;

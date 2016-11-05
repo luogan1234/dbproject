@@ -23,6 +23,8 @@ private:
 
     static bool cmp2(const pair<MyValue*,int> &x,const pair<MyValue*,int> &y);
 
+    static bool cmp3(const pair<int,int> &x,const pair<int,int> &y);
+
     bool _insertData(MyData *data);
 
     bool _insertData(std::vector<MyData*> &data);
@@ -90,8 +92,13 @@ public:
 
     bool isUnique(MyData*); //重复则返回false
 
-    bool isUnique(vector<MyData*> &datas);  //有重复就去掉重复的，并返回false
+    bool isUnique(std::vector<MyData*> &datas);  //有重复就去掉重复的，并返回false
 
+    bool getData(std::vector<std::pair<int,int>> &datas,std::vector<MyData*> &res);
+
+    bool deleteData(std::vector<std::pair<int,int>> &datas,Constraints* con);
+
+    bool updateData(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd);
 };
 
 #endif //DBPROJECT_MYTABLE_H

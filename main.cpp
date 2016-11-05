@@ -4,6 +4,7 @@
 #include "StaticMethod.h"
 #include "recmanage/MyFileIO.h"
 #include "recmanage/MyValue.h"
+#include "fileio/FileManager.h"
 
 using namespace std;
 
@@ -57,7 +58,7 @@ int main() {
 //    MyData* myData=new MyData("012350aaaabcb    0asdf$1$");
 //    MyData* myData2=new MyData("011240adfojdioejo0asdffff$0aa$");
 //    MyData* myData3=new MyData("013120adfo22ioejo0ascdffff$0aa$");
-    std::vector<MyData*> datas;
+    vector<MyData*> datas;
     datas.clear();
 //    datas.push_back(myData);
 //    datas.push_back(myData2);
@@ -65,7 +66,7 @@ int main() {
     int num,offset;
     MyCol* tar = tc.getByName("teset1", num, offset);
     MyValue value;
-    for (int i=0;i<1000;++i)
+    for (int i=0;i<2;++i)
     {
         MyData* data=new MyData("000000adfo22ioejo0ascdffff$0aa$");
         MyData::format(i, tar, value);
@@ -76,7 +77,8 @@ int main() {
     printf("%d\n",datas.size());
     myTable->insertData(datas);
     myTable->indexInfoUpdate();
-    for (int i=0;i<1000;++i)
+    datas.clear();
+/*    for (int i=0;i<1000;++i)
     {
         MyData* data=new MyData("000000adfo22ioejo0ascdffff$0aa$");
         MyData::format(i, tar, value);
@@ -86,28 +88,35 @@ int main() {
     if (myTable->isUnique(datas));
     printf("%d\n",datas.size());
     myTable->insertData(datas);
-    myTable->indexInfoUpdate();
+    myTable->indexInfoUpdate();*/
 //    myData=new MyData("012340aaaabcb    0asdf$1$");
 //    if (myTable->isUnique(myData))
 //        myTable->insertData(myData);
 //    myTable->indexInfoUpdate();
-    Constraints con(1);
-    std::vector<MyData *> ress;
+    Constraints con(1),con0(0);
+    vector<MyData *> ress;
     ress.clear();
     myTable->searchData(&con, ress);
     printf("%d\n",ress.size());
     MyValue v1,v2;
-    MyData::format(0,tar,v1);
-    MyData::format(999,tar,v2);
+//    MyData::format(100,tar,v1);
+//    MyData::format(103,tar,v2);
     MyIndex* index=myTable->getIndex(0);
-    std::vector<pair<int,int>> res;
-    index->findData(&v1,COMPARE_UNDEFINED,&v2,COMPARE_LARGER,res);
-    printf("%d\n",res.size());
+    vector<pair<int,int>> res;
+//    index->findData(&v1,COMPARE_SMALLER,&v2,COMPARE_LARGER,res);
+    myTable->deleteData(&con0);
+    myTable->indexInfoUpdate();
+    res.clear();
+    index->findData(&v1,COMPARE_UNDEFINED,&v2,COMPARE_UNDEFINED,res);
+    ress.clear();
+    myTable->getData(res,ress);
+    printf("%d\n",ress.size());
+//    for (int i=0;i<ress.size();++i)
+//        ress[i]->print();
 //    for (size_t i = 0; i < ress.size(); ++i)
 //        ress[i]->print();
 /*    Constraints con(1), con2(4);
     Updates upd(&tc);
-    std::vector<MyData *> ress;
     ress.clear();
     m->searchData(&con, ress);
     for (size_t i = 0; i < ress.size(); ++i)
@@ -131,7 +140,7 @@ int main() {
         m->insertData(&myData2);
         m->insertData(&myData3);
     }
-    std::vector<MyData*> datas;
+    vector<MyData*> datas;
     for (int i=0;i<300000;++i)
     {
         datas.push_back(&myData);

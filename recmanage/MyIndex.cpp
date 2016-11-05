@@ -143,6 +143,8 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
                 head=8;
         }
         eleNum=*(int*)(page+8188);
+        if (pageNow==rootPage&&eleNum==0)
+            return true;
         int k=1;
         int* next=(int*)(page+8184),*ele;
         while (k<=eleNum)
@@ -368,6 +370,8 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
         int* next=(int*)(page0+8184),*ele;
         if (eleNum==0)
         {
+            if (pp==2)
+                return false;
             pages.push_back(page0);
             nows.push_back(pageNow);
             indexs.push_back(index);
@@ -426,9 +430,9 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     else
                     {
                         slots.push_back(k);
-                        _page=*(int*)page0+*ele;
+                        _page=*(int*)(page0+*ele);
                         if (type!=INDEX_CLUSTERED)
-                            _slot=*(int*)page0+*ele+4;
+                            _slot=*(int*)(page0+*ele+4);
                     }
                     if (pp==1&&type!=INDEX_UNCLUSTERED&&comRes==COMPARE_EQUAL)
                         return false;
@@ -505,8 +509,7 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
             {
                 int index1;
                 char *page1=bm->getPage(fileID,totalUsed,index1);
-                for (i=0;i<PAGE_SIZE/4;++i)
-                    *(int*)(page1+i*4)=0;
+                memset(page1,0,PAGE_SIZE);
                 if (o==m)
                     *(int*)page1=PAGE_LEAF;
                 else
@@ -515,7 +518,7 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
                 int tot2=0;
                 for (i=1;i<=j;++i)
                 {
-                    tot2+=values[i].dataLen;
+                    tot2+=values[i].dataLen+4;
                     if (tot2>tot/2)
                     {
                         ii=i+1;
@@ -564,6 +567,9 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
                     vr.dataLen=values[i].dataLen;
                     *(int*)vr.res=totalUsed;
                 }
+            }else
+            {
+                vr.dataLen=0;
             }
             offset=4;
             for (i=1;i<ii;++i)
@@ -592,21 +598,37 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
             }
             bm->markDirty(indexs[o]);
             vl.dataLen=0;
-            if (tot>8000||k==eleNum&&(vn.dataLen>0||vr.dataLen>0)||k>eleNum)
+            if (tot>8000||k>=eleNum&&nows[o]!=rootPage)
             {
-                --ii;
+                i=ii-1;
                 if (o==m)
                 {
-                    memmove(vn.res+4,values[ii].res+8,values[ii].dataLen-8);
-                    vn.dataLen=values[ii].dataLen-4;
+                    switch (type)
+                    {
+                        case INDEX_CLUSTERED:
+                            memmove(vn.res+4,values[i].res+4,values[i].dataLen+4);
+                            vn.dataLen=values[i].dataLen;
+                            break;
+                        case INDEX_UNCLUSTERED:
+                            memmove(vn.res+4,values[i].res,values[i].dataLen);
+                            vn.dataLen=values[i].dataLen+4;
+                            break;
+                        case INDEX_UNCLUSTERED_UNIQUE:
+                            memmove(vn.res+4,values[i].res+8,values[i].dataLen-8);
+                            vn.dataLen=values[i].dataLen-4;
+                            break;
+                        default:
+                            break;
+                    }
                     *(int*)vn.res=nows[o];
                 } else
                 {
-                    memmove(vn.res+4,values[ii].res+4,values[ii].dataLen-4);
-                    vn.dataLen=values[ii].dataLen;
+                    memmove(vn.res+4,values[i].res+4,values[i].dataLen-4);
+                    vn.dataLen=values[i].dataLen;
                     *(int*)vn.res=nows[o];
                 }
-            }
+            } else
+                vn.dataLen=0;
             if (tot>8000)
             {
                 int index0;
@@ -651,7 +673,7 @@ bool MyIndex::deleteData(MyValue* value,int page,int slot)
         {
             page0=pages[o];k=slots[o];
             bm->markDirty(indexs[o]);
-            int i,j=0,tot=0;eleNum=*(int*)(page0+8188);
+            int i;eleNum=*(int*)(page0+8188);
             int *ele,*next=(int*)(page0+8184-k*4);
             for (i=k;i<eleNum;++i)
             {

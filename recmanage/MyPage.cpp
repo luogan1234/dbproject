@@ -199,7 +199,7 @@ int MyPage::deleteData(Constraints* con)
     myIndex=myTable->getClusteredIndex();
     int m=reserves.size();
     needChange=false;
-    if (eleNum>reserves[m-1]&&myIndex!=0)
+    if ((m==0||eleNum>reserves[m-1])&&myIndex!=0)
     {
         needChange=true;
         int num,offset,colID=myTable->getClusteredID();
@@ -248,7 +248,8 @@ int MyPage::_deleteData()
         lastData->getValue(num,offset,&myTable->cols.cols[colID],myValue);
         myIndex->insertData(&myValue,pageID,-1);
     }
-    delete lastData;
+    if (m>0)
+        delete lastData;
     return spaceLeft;
 }
 
@@ -326,7 +327,7 @@ int MyPage::updateData(Constraints* con,Updates* upd,vector<MyData*> &updated)
     myIndex=myTable->getClusteredIndex();
     int m=reserves.size();
     needChange=false;
-    if (eleNum>reserves[m-1]&&myIndex!=0)
+    if ((m==0||eleNum>reserves[m-1])&&myIndex!=0)
     {
         needChange=true;
         int num,offset,colID=myTable->getClusteredID();
@@ -342,14 +343,26 @@ bool MyPage::findData(vector<int> &slots,vector<MyData*> &res)
 {
     int eleNum=*(int*)(page+8188);
     int* next,*ele,i,m=slots.size();
-    for (i=0;i<m;++i)
-        if (slots[i]<=eleNum&&slots[i]>0)
+    if (slots[0]>-1)
+    {
+        for (i=0;i<m;++i)
+            if (slots[i]<=eleNum&&slots[i]>0)
+            {
+                ele=(int*)(page+8188-slots[i]*4);
+                next=(int*)(page+8184-slots[i]*4);
+                MyData *myData=new MyData(page,*ele,*next-*ele);
+                res.push_back(myData);
+            }
+    }else
+    {
+        int k=0;
+        while (k<eleNum)
         {
-            ele=(int*)(page+8188-slots[i]*4);
-            next=(int*)(page+8184-slots[i]*4);
+            ele=next;++k;next-=1;
             MyData *myData=new MyData(page,*ele,*next-*ele);
             res.push_back(myData);
         }
+    }
     return true;
 }
 

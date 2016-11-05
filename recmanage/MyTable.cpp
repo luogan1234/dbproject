@@ -29,6 +29,13 @@ bool MyTable::cmp2(const pair<MyValue*,int> &x,const pair<MyValue*,int> &y)
         return false;
 }
 
+bool MyTable::cmp3(const pair<int,int> &x,const pair<int,int> &y)
+{
+    if (x.first<y.first||x.first==y.first&&x.second<y.second)
+        return true;
+    return false;
+}
+
 void MyTable::deal()
 {
     indexingCol.clear();
@@ -383,7 +390,7 @@ bool MyTable::_insertData(MyData *data)
     }
 }
 
-bool MyTable::insertData(std::vector<MyData*> &data)
+bool MyTable::insertData(vector<MyData*> &data)
 {
     for (int i=0;i<indexingTot;++i)
         if (indexingType[i]==INDEX_CLUSTERED)
@@ -400,7 +407,7 @@ bool MyTable::insertData(std::vector<MyData*> &data)
     return _insertData(data);
 }
 
-bool MyTable::_insertData(std::vector<MyData*> &data)
+bool MyTable::_insertData(vector<MyData*> &data)
 {
     _totalUsed=totalUsed;
     int pageNum=1,k=0,m=data.size();
@@ -447,12 +454,9 @@ bool MyTable::_insertData(std::vector<MyData*> &data)
         {
             pageNum=*(int*)(page+8188)=totalUsed;
             totalUsed+=1;
-            int index1,i;
+            int index1;
             char* page0=bm->getPage(fileID,pageNum,index1);
-            for (i=0;i<PAGE_SIZE/4;++i)
-            {
-                *(int*)(page0+i*4)=0;
-            }
+            memset(page0,0,PAGE_SIZE);
             *(int*)(page0+8188)=-1;
             bm->markDirty(index1);
             bm->markDirty(index);
@@ -460,7 +464,7 @@ bool MyTable::_insertData(std::vector<MyData*> &data)
     }
 }
 
-bool MyTable::searchData(Constraints* con,std::vector<MyData*> &res)
+bool MyTable::searchData(Constraints* con,vector<MyData*> &res)
 {
     int pageNum=1;
     while (true)
@@ -502,7 +506,7 @@ bool MyTable::deleteData(Constraints* con)
 bool MyTable::updateData(Constraints* con,Updates* upd)
 {
     int pageNum=1;
-    std::vector<MyData*> updated;
+    vector<MyData*> updated;
     updated.clear();
     while (true)
     {
@@ -567,4 +571,103 @@ bool MyTable::indexInfoUpdate()
     for (i=0;i<n;++i)
         delete infoClusters[i];
     infos.clear();infoClusters.clear();
+}
+
+bool MyTable::getData(vector<pair<int,int>> &datas,vector<MyData*> &res)
+{
+    sort(datas.begin(),datas.end(),cmp3);
+    vector<int> slots;
+    int i,j,m=datas.size(),nowPage;
+    for (i=0;i<m;++i)
+        if (i==0||datas[i].first>datas[i-1].first)
+        {
+            nowPage=datas[i].first;
+            if (nowPage>=totalUsed)
+                return false;
+            slots.clear();
+            slots.push_back(datas[i].second);
+            if (slots[0]>-1)
+                for (j=i+1;j<m;++j)
+                    if (datas[j].first==datas[i].first&&datas[j].second>datas[j-1].second)
+                        slots.push_back(datas[j].second);
+                    else
+                        break;
+            MyPage myPage(fileID,nowPage,bm,this);
+            myPage.findData(slots,res);
+        }
+    return true;
+}
+
+bool MyTable::deleteData(std::vector<std::pair<int,int>> &datas,Constraints* con)
+{
+    sort(datas.begin(),datas.end(),cmp3);
+    int n=datas.size(),i,m;
+    bool *p=new bool[totalUsed];
+    for (i=0;i<totalUsed;++i)
+        p[i]=false;
+    for (i=0;i<n;++i)
+        if (datas[i].first<totalUsed)
+            p[datas[i].first]=true;
+    int pageNum=1;
+    while (true)
+    {
+        char* page=bm->getPage(fileID,pageNum,index);
+        int used=*(int*)page;
+        for (int i=0;i<used;++i)
+        {
+            int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
+            if (p[*dataPage])
+            {
+                MyPage page(fileID,*dataPage,bm,this);
+                *spaceLeft=page.deleteData(con);
+                bm->markDirty(index);
+            }
+        }
+        pageNum=*(int*)(page+8188);
+        if (pageNum==-1)
+        {
+            delete []p;
+            return true;
+        }
+    }
+}
+
+bool MyTable::updateData(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd)
+{
+    sort(datas.begin(),datas.end(),cmp3);
+    int n=datas.size(),i,m;
+    bool *p=new bool[totalUsed];
+    for (i=0;i<totalUsed;++i)
+        p[i]=false;
+    for (i=0;i<n;++i)
+        if (datas[i].first<totalUsed)
+            p[datas[i].first]=true;
+    int pageNum=1;
+    vector<MyData*> updated;
+    updated.clear();
+    while (true)
+    {
+        char* page=bm->getPage(fileID,pageNum,index);
+        int used=*(int*)page;
+        for (int i=0;i<used;++i)
+        {
+            int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
+            if (p[*dataPage])
+            {
+                MyPage page(fileID,*dataPage,bm,this);
+                *spaceLeft=page.updateData(con,upd,updated);
+                bm->markDirty(index);
+            }
+        }
+        pageNum=*(int*)(page+8188);
+        if (pageNum==-1)
+        {
+            insertData(updated);
+            size_t j,m=updated.size();
+            for (j=0;j<m;++j)
+                delete updated[j];
+            delete []p;
+            return true;
+        }
+    }
 }

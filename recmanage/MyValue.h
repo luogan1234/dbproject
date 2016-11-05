@@ -6,6 +6,8 @@
 #define DBPROJECT_MYVALUE_H
 
 
+#include "../consts.h"
+
 class MyValue {
 public:
     bool isNull;
@@ -20,6 +22,8 @@ public:
     int compare(MyValue* v);
 
     static int compare(MyValue* v1,MyValue* v2);
+
+    void print();
 };
 
 
