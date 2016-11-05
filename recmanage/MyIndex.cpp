@@ -344,6 +344,15 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
 
 bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
 {
+    if (pp==1)
+    {
+        cout<<"insert:";
+        value->print();
+    }
+    if (*(int*)value->res==999)
+    {
+        cout<<'!'<<999<<endl;
+    }
     if (type==INDEX_CLUSTERED&&slot>=0)
         return false;
     if (type!=INDEX_CLUSTERED&&slot==-1)
@@ -411,6 +420,19 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                             continue;
                     }
                 }
+                if (k==eleNum&&comRes==COMPARE_EQUAL&&pageType==PAGE_LEAF)
+                {
+                    if (type==INDEX_UNCLUSTERED)
+                    {
+                        int _page=*(int*)(page0+*ele+head0),_slot=*(int*)(page0+*ele+head0+4);
+                        if (page>_page||page==_page&&slot>_slot)
+                        {
+                            ++k;
+                            if (pp==2)
+                                return false;
+                        }
+                    }
+                }
                 if (pageType==PAGE_NORMAL)
                 {
                     pages.push_back(page0);
@@ -421,6 +443,12 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     break;
                 } else
                 {
+                    if (pp==2)
+                    {
+                        cout<<"delete:"<<pageNow<<' ';
+                        v.print();
+                    } else
+                        cout<<pageNow<<endl;
                     pages.push_back(page0);
                     nows.push_back(pageNow);
                     indexs.push_back(index);
@@ -437,7 +465,12 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     if (pp==1&&type!=INDEX_UNCLUSTERED&&comRes==COMPARE_EQUAL)
                         return false;
                     if (pp==2&&(comRes!=COMPARE_EQUAL||page!=_page||slot!=_slot))
+                    {
+                        v.print();
+                        cout<<page<<' '<<_page<<' '<<slot<<' '<<_slot<<endl;
+                        printf("!!!\n");
                         return false;
+                    }
                     return true;
                 }
             }
@@ -594,6 +627,8 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
             {
                 offset-=values[i].dataLen;
                 memmove(page0+offset,values[i].res,values[i].dataLen);
+                if (i==ii-1)
+                    values[i].res=page0+offset;
                 *(int*)(page0+8188-i*4)=offset;
             }
             bm->markDirty(indexs[o]);
@@ -693,7 +728,7 @@ bool MyIndex::deleteData(MyValue* value,int page,int slot)
             {
                 if (o==m)
                 {
-                    int prevPage=*(int*)(page0+4),nextPage=*(int*)(page0+8);
+                    int prevPage=*(int*)(page0+8),nextPage=*(int*)(page0+4);
                     if (prevPage>0)
                     {
                         int index1;

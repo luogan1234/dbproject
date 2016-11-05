@@ -24,15 +24,15 @@ public:
     Updates(TableCols *c)
     {
         cols=c;
-        tar=cols->getByName("teset2",num,offset);
-        MyData::format("asdf",tar,comValue);
+        tar=cols->getByName("teset1",num,offset);
+        MyData::format(99,tar,comValue);
     }
 
     bool update(MyData *myData)
     {
         myData->getValue(num,offset,tar,oldValue);
-        MyData::format("abcde",tar,newValue);
-        if (oldValue.compare(&comValue)==COMPARE_EQUAL)
+        MyData::format(99,tar,newValue);
+//        if (oldValue.compare(&comValue)==COMPARE_EQUAL)
         {
             myData->setValue(num,offset,tar,newValue);
             return true;

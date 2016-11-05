@@ -297,6 +297,7 @@ int MyPage::updateData(Constraints* con,Updates* upd,vector<MyData*> &updated)
                     mi->newPage=pageID;mi->newSlot=i;
                     mi->oldPage=pageID;mi->oldSlot=k;
                     myTable->infos.push_back(mi);
+                    delete myData2;
                 }else
                     delete myData,myData2;
             }
@@ -307,20 +308,25 @@ int MyPage::updateData(Constraints* con,Updates* upd,vector<MyData*> &updated)
                 memmove(page+*ele,myData->data,myData->len);
                 reserves.push_back(k);
                 ++i;
+                ModifyInfo* mi2=new ModifyInfo;
+                mi2->data=myData2;
+                mi2->newPage=-1;mi2->newSlot=-1;
+                mi2->oldPage=pageID;mi2->oldSlot=k;
+                myTable->infos.push_back(mi2);
                 ModifyInfo* mi=new ModifyInfo;
                 mi->data=myData;
                 mi->newPage=pageID;mi->newSlot=i;
                 mi->oldPage=-1;mi->oldSlot=-1;
                 myTable->infos.push_back(mi);
-                ModifyInfo* mi2=new ModifyInfo;
-                mi2->data=myData2;
-                mi2->newPage=-1;mi2->newSlot=-1;
-                mi2->oldPage=pageID;mi2->oldSlot=k;
-                myTable->infos.push_back(mi);
             }
             else
             {
                 updated.push_back(myData);
+                ModifyInfo* mi2=new ModifyInfo;
+                mi2->data=myData2;
+                mi2->newPage=-1;mi2->newSlot=-1;
+                mi2->oldPage=pageID;mi2->oldSlot=k;
+                myTable->infos.push_back(mi2);
             }
         }
     }

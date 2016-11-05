@@ -66,7 +66,7 @@ int main() {
     int num,offset;
     MyCol* tar = tc.getByName("teset1", num, offset);
     MyValue value;
-    for (int i=0;i<2;++i)
+    for (int i=0;i<1000;++i)
     {
         MyData* data=new MyData("000000adfo22ioejo0ascdffff$0aa$");
         MyData::format(i, tar, value);
@@ -78,7 +78,7 @@ int main() {
     myTable->insertData(datas);
     myTable->indexInfoUpdate();
     datas.clear();
-/*    for (int i=0;i<1000;++i)
+    for (int i=0;i<1000;++i)
     {
         MyData* data=new MyData("000000adfo22ioejo0ascdffff$0aa$");
         MyData::format(i, tar, value);
@@ -88,28 +88,31 @@ int main() {
     if (myTable->isUnique(datas));
     printf("%d\n",datas.size());
     myTable->insertData(datas);
-    myTable->indexInfoUpdate();*/
+    myTable->indexInfoUpdate();
 //    myData=new MyData("012340aaaabcb    0asdf$1$");
 //    if (myTable->isUnique(myData))
 //        myTable->insertData(myData);
 //    myTable->indexInfoUpdate();
     Constraints con(1),con0(0);
+    Updates upd(&tc);
     vector<MyData *> ress;
     ress.clear();
     myTable->searchData(&con, ress);
     printf("%d\n",ress.size());
     MyValue v1,v2;
-//    MyData::format(100,tar,v1);
-//    MyData::format(103,tar,v2);
+    MyData::format(99,tar,v1);
+    MyData::format(99,tar,v2);
     MyIndex* index=myTable->getIndex(0);
     vector<pair<int,int>> res;
 //    index->findData(&v1,COMPARE_SMALLER,&v2,COMPARE_LARGER,res);
-    myTable->deleteData(&con0);
+    myTable->updateData(&con0,&upd);
     myTable->indexInfoUpdate();
     res.clear();
-    index->findData(&v1,COMPARE_UNDEFINED,&v2,COMPARE_UNDEFINED,res);
+    index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
+//    index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
     ress.clear();
     myTable->getData(res,ress);
+    printf("%d\n",res.size());
     printf("%d\n",ress.size());
 //    for (int i=0;i<ress.size();++i)
 //        ress[i]->print();

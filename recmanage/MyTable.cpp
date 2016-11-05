@@ -523,9 +523,6 @@ bool MyTable::updateData(Constraints* con,Updates* upd)
         if (pageNum==-1)
         {
             insertData(updated);
-            size_t j,m=updated.size();
-            for (j=0;j<m;++j)
-                delete updated[j];
             return true;
         }
     }
@@ -534,6 +531,7 @@ bool MyTable::updateData(Constraints* con,Updates* upd)
 bool MyTable::indexInfoUpdate()
 {
     int i,k,m=infos.size(),n=infoClusters.size();
+    int tot1=0,tot2=0;
     for (k=0;k<indexingTot;++k)
     {
         myIndex=myFileIO->getIndex(name,indexingCol[k],this);
@@ -560,9 +558,9 @@ bool MyTable::indexInfoUpdate()
                 MyValue value;
                 mi->data->getValue(num,offset,&cols.cols[k],value);
                 if (mi->oldPage!=-1)
-                    myIndex->deleteData(&value,mi->oldPage,mi->oldSlot);
+                    myIndex->deleteData(&value,mi->oldPage,mi->oldSlot),++tot1;
                 if (mi->newPage!=-1)
-                    myIndex->insertData(&value,mi->newPage,mi->newSlot);
+                    myIndex->insertData(&value,mi->newPage,mi->newSlot),++tot2;
             }
         }
     }
@@ -663,9 +661,6 @@ bool MyTable::updateData(std::vector<std::pair<int,int>> &datas,Constraints* con
         if (pageNum==-1)
         {
             insertData(updated);
-            size_t j,m=updated.size();
-            for (j=0;j<m;++j)
-                delete updated[j];
             delete []p;
             return true;
         }

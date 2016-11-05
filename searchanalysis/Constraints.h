@@ -27,7 +27,7 @@ public:
         if (ranp==0)
         {
             int v=*(int*)(data->data+1);
-            if (true)
+            if (v>=99&&v<=1000)
                 return true;
             else
                 return false;
