@@ -7,6 +7,36 @@
 #include <iostream>
 using namespace std;
 
+void MyValue::get(int valueType,int valueLen,bool canNull,char *pos,int len)
+{
+    type=valueType;
+    if (canNull)
+    {
+        isNull=(*pos!='0');
+        res=pos+1;
+    }else
+    {
+        isNull=false;
+        res=pos;
+    }
+    switch (valueType)
+    {
+        case TYPE_INT:
+            dataLen=4;
+            break;
+        case TYPE_CHAR:
+            dataLen=valueLen;
+            break;
+        case TYPE_VARCHAR:
+            dataLen=len;
+            if (canNull)
+                --dataLen;
+            break;
+        default:
+            ;
+    }
+}
+
 void MyValue::print()
 {
     int i;
@@ -36,8 +66,16 @@ void MyValue::print()
 
 int MyValue::compare(MyValue* v)
 {
-    if (type!=v->type||isNull||v->isNull)
+    if (type!=v->type)
         return COMPARE_UNDEFINED;
+    if (isNull||v->isNull)
+    {
+        if (isNull&&v->isNull)
+            return COMPARE_EQUAL;
+        if (isNull)
+            return COMPARE_SMALLER;
+        return COMPARE_LARGER;
+    }
     int i;
     switch (type)
     {

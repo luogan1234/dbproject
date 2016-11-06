@@ -58,7 +58,7 @@ public:
 
     void closeAll();
 
-    bool createIndex(std::string name,short colID,char type,int valueType,int valueLen);
+    bool createIndex(std::string name,short colID,char type,bool canNull,bool canDel,int valueType,int valueLen);
 
     bool dropIndex(std::string name,short colID);
 

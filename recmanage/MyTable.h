@@ -36,6 +36,7 @@ public:
     int fileID,index,totalUsed,_totalUsed,indexingTot;
     std::vector<short> indexingCol;
     std::vector<char> indexingType;
+    std::vector<bool> indexCanNull,indexCanDel;
     MyIndex* indexes[MAX_COL_NUM];
     std::vector<ModifyInfo*> infos;
     std::vector<ModifyInfoForCluster*> infoClusters;
@@ -76,7 +77,7 @@ public:
 
     bool updateData(Constraints* con,Updates* upd);
 
-    bool createIndex(short colID,char type);
+    bool createIndex(short colID,char type,bool canNull,bool canDel);
 
     bool dropIndex(short colID);
 

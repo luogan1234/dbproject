@@ -24,36 +24,34 @@ int MyPage::insertData(MyData *data)
     return spaceLeft;
 }
 
-bool MyPage::insertDataClustered(MyData *data,int num,int offset,MyValue &value,MyCol* myCol,MyIndex* myIndex)
+bool MyPage::insertDataClustered(MyData *data,int num,int offset,MyValue &value,MyCol* myCol,MyIndex* myIndex,int &spaceLeft,int &page2,int &spaceLeft2)
 {
     int* eleNum=(int*)(page+8188);
-    int k=0,p=-1,len=8;
+    int k=0,p=-1,len=8;page2=-1;
     int* next=(int*)(page+8184),*ele;
+    MyValue value2;
     vector<MyData*> datas;
-    vector<MyValue*> values;
     datas.clear();
     while (k<*eleNum)
     {
         ele=next;++k;next-=1;
         MyData *myData=new MyData(page,*ele,*next-*ele);
-        MyValue* myValue=new MyValue;
-        myData->getValue(num,offset,myCol,*myValue);
-        int comRes=value.compare(myValue);
+        myData->getValue(num,offset,myCol,value2);
+        int comRes=value.compare(&value2);
         if (comRes==COMPARE_EQUAL)
         {
             int i,m=datas.size();
             for (i=0;i<m;++i)
                 delete datas[i];
+            delete myData;
             return false;
         }
         if (comRes==COMPARE_SMALLER&&p==-1)
         {
             datas.push_back(data);p=k-1;
-            values.push_back(&value);
             len+=data->len+4;
         }
         datas.push_back(myData);
-        values.push_back(myValue);
         len+=myData->len+4;
     }
     if (p==-1)
@@ -96,13 +94,14 @@ bool MyPage::insertDataClustered(MyData *data,int num,int offset,MyValue &value,
             }
             myTable->infos.push_back(mi);
         }
+        *(int*)(page0+8184-j*4)=pos;
         *(int*)(page0+8188)=j;
-        myIndex->insertData(values[m-1],newPage,-1);
         bm->markDirty(index0);
         ++myTable->totalUsed;
         page0=bm->getPage(fileID,0,index0);
         *(int*)page0=myTable->totalUsed;
         bm->markDirty(index0);
+        page2=newPage;spaceLeft2=8184-j*4-pos;
     }
     j=pos=0;
     for (i=0;i<ii;++i)
@@ -128,16 +127,34 @@ bool MyPage::insertDataClustered(MyData *data,int num,int offset,MyValue &value,
         }
         myTable->infos.push_back(mi);
     }
+    *(int*)(page+8184-j*4)=pos;
     *(int*)(page+8188)=j;
     bm->markDirty(index);
     if (ii<m||p==m-1)
     {
         if (p==m-1)
-            myIndex->deleteData(values[p-1],pageID,-1);
+        {
+            if (p>0)
+            {
+                datas[p-1]->getValue(num,offset,myCol,value2);
+                myIndex->deleteData(&value2,pageID,-1);
+            }
+
+        }
         else
-            myIndex->deleteData(values[m-1],pageID,-1);
-        myIndex->insertData(values[ii-1],pageID,-1);
+        {
+            datas[m-1]->getValue(num,offset,myCol,value2);
+            myIndex->deleteData(&value2,pageID,-1);
+        }
+        datas[ii-1]->getValue(num,offset,myCol,value2);
+        myIndex->insertData(&value2,pageID,-1);
     }
+    if (len>8100)
+    {
+        datas[m-1]->getValue(num,offset,myCol,value2);
+        myIndex->insertData(&value2,myTable->totalUsed-1,-1);
+    }
+    spaceLeft=8184-j*4-pos;
     return true;
 }
 
@@ -162,6 +179,8 @@ int MyPage::searchData(Constraints* con,vector<MyData*> &res)
 int MyPage::deleteData(Constraints* con)
 {
     int eleNum=*(int*)(page+8188);
+    if (eleNum==0)
+        return 8184;
     int k=0,i=0;
     int* next=(int*)(page+8184),*ele;
     reserves.clear();
@@ -361,7 +380,7 @@ bool MyPage::findData(vector<int> &slots,vector<MyData*> &res)
             }
     }else
     {
-        int k=0;
+        int k=0;next=(int*)(page+8184);
         while (k<eleNum)
         {
             ele=next;++k;next-=1;

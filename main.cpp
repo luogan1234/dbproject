@@ -53,7 +53,7 @@ int main() {
 //    myFileIO.dropTable("my1");
     MyTable *myTable;
     myTable = myFileIO.getTable("my2");
-    bool p=myTable->createIndex(0,INDEX_UNCLUSTERED);
+    bool p=myTable->createIndex(0,INDEX_UNCLUSTERED,true,true);
     printf("%d\n",p);
 //    MyData* myData=new MyData("012350aaaabcb    0asdf$1$");
 //    MyData* myData2=new MyData("011240adfojdioejo0asdffff$0aa$");
@@ -63,10 +63,17 @@ int main() {
 //    datas.push_back(myData);
 //    datas.push_back(myData2);
 //    datas.push_back(myData3);
+    vector<MyData *> ress;
+    ress.clear();
+    Constraints con(1),con0(0);
+    Updates upd(&tc);
+    myTable->searchData(&con, ress);
+    printf("%d\n",ress.size());
     int num,offset;
     MyCol* tar = tc.getByName("teset1", num, offset);
     MyValue value;
-    for (int i=0;i<1000;++i)
+    int tt1=0,tt2=1000,tt3=99,tt4=100;
+    for (int i=0;i<100000;++i)
     {
         MyData* data=new MyData("000000adfo22ioejo0ascdffff$0aa$");
         MyData::format(i, tar, value);
@@ -77,7 +84,7 @@ int main() {
     printf("%d\n",datas.size());
     myTable->insertData(datas);
     myTable->indexInfoUpdate();
-    datas.clear();
+/*    datas.clear();
     for (int i=0;i<1000;++i)
     {
         MyData* data=new MyData("000000adfo22ioejo0ascdffff$0aa$");
@@ -87,33 +94,39 @@ int main() {
     }
     if (myTable->isUnique(datas));
     printf("%d\n",datas.size());
-    myTable->insertData(datas);
-    myTable->indexInfoUpdate();
+    bool pp=myTable->insertData(datas);
+    printf("%d\n",pp);
+    myTable->indexInfoUpdate();*/
 //    myData=new MyData("012340aaaabcb    0asdf$1$");
 //    if (myTable->isUnique(myData))
 //        myTable->insertData(myData);
 //    myTable->indexInfoUpdate();
-    Constraints con(1),con0(0);
-    Updates upd(&tc);
-    vector<MyData *> ress;
     ress.clear();
     myTable->searchData(&con, ress);
     printf("%d\n",ress.size());
     MyValue v1,v2;
-    MyData::format(99,tar,v1);
+    MyData::format(98,tar,v1);
     MyData::format(99,tar,v2);
     MyIndex* index=myTable->getIndex(0);
     vector<pair<int,int>> res;
-//    index->findData(&v1,COMPARE_SMALLER,&v2,COMPARE_LARGER,res);
-    myTable->updateData(&con0,&upd);
-    myTable->indexInfoUpdate();
-    res.clear();
     index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
-//    index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
     ress.clear();
     myTable->getData(res,ress);
     printf("%d\n",res.size());
     printf("%d\n",ress.size());
+    myTable->updateData(&con0,&upd);
+    myTable->indexInfoUpdate();
+    res.clear();
+//    index->findData(&v1,COMPARE_UNDEFINED,&v2,COMPARE_UNDEFINED,res);
+    index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
+    ress.clear();
+    myTable->searchData(&con, ress);
+    printf("%d\n",ress.size());
+    ress.clear();
+    myTable->getData(res,ress);
+    printf("%d\n",res.size());
+    printf("%d\n",ress.size());
+    cout<<index->canNull<<endl;
 //    for (int i=0;i<ress.size();++i)
 //        ress[i]->print();
 //    for (size_t i = 0; i < ress.size(); ++i)

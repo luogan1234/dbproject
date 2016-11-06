@@ -42,7 +42,7 @@ public:
 
     int insertData(MyData *data);
 
-    bool insertDataClustered(MyData *data,int num,int offset,MyValue &value,MyCol* myCol,MyIndex* myIndex);
+    bool insertDataClustered(MyData *data,int num,int offset,MyValue &value,MyCol* myCol,MyIndex* myIndex,int &spaceLeft,int &page2,int &spaceLeft2);
 
     int searchData(Constraints* con,std::vector<MyData*> &res);
 

@@ -24,6 +24,8 @@ public:
     static int compare(MyValue* v1,MyValue* v2);
 
     void print();
+
+    void get(int valueType,int valueLen,bool canNull,char *pos,int len);
 };
 
 

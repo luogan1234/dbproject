@@ -172,7 +172,7 @@ void MyFileIO::closeAll()
     fm->closeAll();
 }
 
-bool MyFileIO::createIndex(string name,short colID,char type,int valueType,int valueLen)
+bool MyFileIO::createIndex(string name,short colID,char type,bool canNull,bool canDel,int valueType,int valueLen)
 {
     if (nowDBPath=="")
         return false;
@@ -183,7 +183,7 @@ bool MyFileIO::createIndex(string name,short colID,char type,int valueType,int v
     fm->createFile(tar.c_str());
     int fileIDInit;
     fm->openFile(tar,fileIDInit);
-    MyIndex mi=MyIndex(bm,name,colID,type,valueType,valueLen,fileIDInit);
+    MyIndex mi=MyIndex(bm,name,colID,type,canNull,canDel,valueType,valueLen,fileIDInit);
     return true;
 }
 

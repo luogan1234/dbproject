@@ -40,14 +40,26 @@ void MyTable::deal()
 {
     indexingCol.clear();
     indexingType.clear();
+    indexCanNull.clear();
+    indexCanDel.clear();
     int index0;
     char* page0=bm->getPage(fileID,0,index0);
     totalUsed=*(int*)page0;
     indexingTot=*(int*)(page0+4);
     for (int i=0;i<indexingTot;++i)
     {
-        indexingCol.push_back(*(short*)(page0+i*3+8));
-        indexingType.push_back(*(page0+i*3+10));
+        indexingCol.push_back(*(short*)(page0+i*5+8));
+        indexingType.push_back(*(page0+i*5+10));
+        char p=*(page0+i*5+11);
+        if (p=='0')
+            indexCanNull.push_back(false);
+        else
+            indexCanNull.push_back(true);
+        p=*(page0+i*5+12);
+        if (p=='0')
+            indexCanDel.push_back(false);
+        else
+            indexCanDel.push_back(true);
     }
     infos.clear();
     infoClusters.clear();
@@ -75,13 +87,10 @@ bool MyTable::isUnique(MyData *data)
 
 bool MyTable::isUnique(vector<MyData*> &datas)
 {
-    int i,num,offset,colID,j,m=datas.size();
-    MyValue* values=new MyValue[m];
-    bool* pp=new bool[m];
+    int i,num,offset,colID,j,m;
     bool p=true;
     MyValue value;
     vector<pair<int,int>> res;
-    vector<pair<MyValue*,int>> sorts;
     res.clear();
     for (i=0;i<indexingTot;++i)
         if (indexingType[i]==INDEX_UNCLUSTERED_UNIQUE)
@@ -92,7 +101,7 @@ bool MyTable::isUnique(vector<MyData*> &datas)
             colID=indexingCol[i];
             cols.getByOrder(colID,num,offset);
             m=datas.size();
-            for (j=0;j<m;++j)
+            for (j=m-1;j>=0;--j)
             {
                 datas[j]->getValue(num,offset,&cols.cols[colID],value);
                 indexes[i]->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
@@ -101,47 +110,40 @@ bool MyTable::isUnique(vector<MyData*> &datas)
                     p=false;
                     res.clear();
                     datas.erase(datas.begin()+j);
-                    --j;--m;
+                    --m;
                 }
             }
-            sorts.clear();
-
-            for (j=0;j<m;++j)
-            {
-                pp[j]=true;
-                datas[j]->getValue(num,offset,&cols.cols[colID],values[j]);
-                sorts.push_back(make_pair(&values[j],j));
-            }
-            sort(sorts.begin(),sorts.end(),cmp2);
-            for (j=1;j<m;++j)
-                if (sorts[j].first->compare(sorts[j-1].first)==COMPARE_EQUAL)
-                    pp[sorts[j].second]=false;
-            for (j=m-1;j>=0;--j)
-                if (!pp[j])
-                    sorts.erase(sorts.begin()+j);
         }
-    delete []values;
-    delete []pp;
     return p;
 }
 
-bool MyTable::createIndex(short colID, char type)
+bool MyTable::createIndex(short colID, char type,bool canNull,bool canDel)
 {
     for (int i=0;i<indexingTot;++i)
         if (colID==indexingCol[i]||type==INDEX_CLUSTERED&&indexingType[i]==INDEX_CLUSTERED)
         {
             return false;
         }
-    if (!myFileIO->createIndex(name,colID,type,cols.cols[colID].type,cols.cols[colID].len))
+    if (!myFileIO->createIndex(name,colID,type,canNull,canDel,cols.cols[colID].type,cols.cols[colID].len))
         return false;
     indexingCol.push_back(colID);
     indexingType.push_back(type);
+    indexCanNull.push_back(canNull);
+    indexCanDel.push_back(canDel);
     ++indexingTot;
     int index0;
     char* page0=bm->getPage(fileID,0,index0);
     int *tot=(int*)(page0+4);
-    *(short*)(page0+*tot*3+8)=colID;
-    *(page0+*tot*3+10)=type;
+    *(short*)(page0+*tot*5+8)=colID;
+    *(page0+*tot*5+10)=type;
+    if (!canNull)
+        *(page0+*tot*5+11)='0';
+    else
+        *(page0+*tot*5+11)='1';
+    if (!canDel)
+        *(page0+*tot*5+12)='0';
+    else
+        *(page0+*tot*5+12)='1';
     *tot+=1;
     bm->markDirty(index0);
     int num,offset;
@@ -183,7 +185,7 @@ bool MyTable::createIndex(short colID, char type)
         }
         sort(sorts.begin(),sorts.end(),cmp);
         for (i=0;i<m-1;++i)
-            if (MyValue::compare(sorts[i].second,sorts[i+1].second)==COMPARE_EQUAL)
+            if (MyValue::compare(sorts[i].second,sorts[i+1].second)==COMPARE_EQUAL||!canNull&&sorts[i].second->isNull)
             {
                 dropIndex(colID);
                 return false;
@@ -234,7 +236,7 @@ bool MyTable::createIndex(short colID, char type)
 bool MyTable::dropIndex(short colID)
 {
     for (int i=0;i<indexingTot;++i)
-        if (colID==indexingCol[i])
+        if (colID==indexingCol[i]&&indexCanDel[i])
         {
             if (!myFileIO->dropIndex(name,colID))
                 return false;
@@ -243,12 +245,18 @@ bool MyTable::dropIndex(short colID)
             char* page0=bm->getPage(fileID,0,index0);
             int *tot=(int*)(page0+4);
             *tot-=1;
-            *(short*)(page0+i*3+8)=*(short*)(page0+*tot*3+8);
-            *(page0+i*3+10)=*(page0+*tot*3+10);
+            *(short*)(page0+i*5+8)=*(short*)(page0+*tot*5+8);
+            *(page0+i*5+10)=*(page0+*tot*5+10);
+            *(page0+i*5+11)=*(page0+*tot*5+11);
+            *(page0+i*5+12)=*(page0+*tot*5+12);
             indexingCol[i]=indexingCol[indexingTot];
             indexingType[i]=indexingType[indexingTot];
+            indexCanNull[i]=indexCanNull[indexingTot];
+            indexCanDel[i]=indexCanDel[indexingTot];
             indexingCol.pop_back();
             indexingType.pop_back();
+            indexCanNull.pop_back();
+            indexCanDel.pop_back();
             bm->markDirty(index0);
             return true;
         }
@@ -328,13 +336,76 @@ bool MyTable::insertData(MyData *data)
     for (int i=0;i<indexingTot;++i)
         if (indexingType[i]==INDEX_CLUSTERED)
         {
+            bool p;
             MyIndex* myIndex=myFileIO->getIndex(name,indexingCol[i],this);
             if (myIndex==0)
                 break;
-            if (!myIndex->insertDataClustered(data))
-                return false;
+            int num,offset,colID=indexingCol[i],sl,page2,sl2;
+            cols.getByOrder(colID,num,offset);
+            MyValue value;
+            data->getValue(num,offset,&cols.cols[colID],value);
+            int resPage=myIndex->insertDataClustered(value);
+            _totalUsed=totalUsed;
+            if (resPage==-1)
+            {
+                resPage=totalUsed;
+                totalUsed+=1;
+                char* page0=bm->getPage(fileID,resPage,index);
+                memset(page0,0,PAGE_SIZE);
+                bm->markDirty(index);
+            }
+            MyPage myPage(fileID,resPage,bm,this);
+            page2=-1;
+            p=myPage.insertDataClustered(data,num,offset,value,&cols.cols[colID],myIndex,sl,page2,sl2);
+            if (p)
+            {
+                int pageNum=1;
+                while (true)
+                {
+                    char* page=bm->getPage(fileID,pageNum,index);
+                    int* used=(int*)page;
+                    for (int i=0;i<*used;++i)
+                    {
+                        int *dataPage=(int*)(page+i*8+4),*spaceLeft=(int*)(page+i*8+8);
+                        if (*dataPage==resPage)
+                            *spaceLeft=sl,resPage=-1;
+                        if (*dataPage==page2)
+                            *spaceLeft=sl2,page2=-1;
+                    }
+                    if (resPage==-1&&page2==-1)
+                        break;
+                    if (*used<1000&&(resPage>-1||page2>-1))
+                    {
+                        int *dataPage=(int*)(page+*used*8+4),*spaceLeft=(int*)(page+*used*8+8);
+                        *used+=1;
+                        if (resPage>-1)
+                        {
+                            *dataPage=resPage;
+                            *spaceLeft=sl;
+                        } else
+                        {
+                            *dataPage=page2;
+                            *spaceLeft=sl2;
+                        }
+                        bm->markDirty(index);
+                        break;
+                    }
+                    pageNum=*(int*)(page+8188);
+                    if (pageNum==-1)
+                    {
+                        pageNum=*(int*)(page+8188)=totalUsed;
+                        totalUsed+=1;
+                        int index1;
+                        char* page0=bm->getPage(fileID,pageNum,index1);
+                        memset(page0,0,PAGE_SIZE);
+                        *(int*)(page0+8188)=-1;
+                        bm->markDirty(index1);
+                        bm->markDirty(index);
+                    }
+                }
+            }
             pageUsedUpdate();
-            return true;
+            return p;
         }
     return _insertData(data);
 }
@@ -377,12 +448,9 @@ bool MyTable::_insertData(MyData *data)
         {
             pageNum=*(int*)(page+8188)=totalUsed;
             totalUsed+=1;
-            int index1,i;
+            int index1;
             char* page0=bm->getPage(fileID,pageNum,index1);
-            for (i=0;i<PAGE_SIZE/4;++i)
-            {
-                *(int*)(page0+i*4)=0;
-            }
+            memset(page0,0,PAGE_SIZE);
             *(int*)(page0+8188)=-1;
             bm->markDirty(index1);
             bm->markDirty(index);
@@ -390,7 +458,7 @@ bool MyTable::_insertData(MyData *data)
     }
 }
 
-bool MyTable::insertData(vector<MyData*> &data)
+bool MyTable::insertData(vector<MyData*> &datas)
 {
     for (int i=0;i<indexingTot;++i)
         if (indexingType[i]==INDEX_CLUSTERED)
@@ -399,12 +467,15 @@ bool MyTable::insertData(vector<MyData*> &data)
             if (myIndex==0)
                 break;
             bool p=true;
-            for (size_t j=0;j<data.size();++j)
-                p&=myIndex->insertDataClustered(data[j]);
-            pageUsedUpdate();
+            int m=datas.size();
+            for (size_t j=0;j<m;++j)
+            {
+                p&=insertData(datas[j]);
+            }
+
             return p;
         }
-    return _insertData(data);
+    return _insertData(datas);
 }
 
 bool MyTable::_insertData(vector<MyData*> &data)
@@ -531,7 +602,6 @@ bool MyTable::updateData(Constraints* con,Updates* upd)
 bool MyTable::indexInfoUpdate()
 {
     int i,k,m=infos.size(),n=infoClusters.size();
-    int tot1=0,tot2=0;
     for (k=0;k<indexingTot;++k)
     {
         myIndex=myFileIO->getIndex(name,indexingCol[k],this);
@@ -552,16 +622,21 @@ bool MyTable::indexInfoUpdate()
             int num,offset;
             cols.getByOrder(indexingCol[k],num,offset);
             ModifyInfo* mi;
+            bool p1,p2;
             for (i=0;i<m;++i)
             {
                 mi=infos[i];
                 MyValue value;
                 mi->data->getValue(num,offset,&cols.cols[k],value);
+                p1=true;p2=true;
                 if (mi->oldPage!=-1)
-                    myIndex->deleteData(&value,mi->oldPage,mi->oldSlot),++tot1;
+                    p1&=myIndex->deleteData(&value,mi->oldPage,mi->oldSlot);
                 if (mi->newPage!=-1)
-                    myIndex->insertData(&value,mi->newPage,mi->newSlot),++tot2;
+                    p2&myIndex->insertData(&value,mi->newPage,mi->newSlot);
+                if (!p1||!p2)
+                    cout<<p1<<' '<<p2<<endl;
             }
+
         }
     }
     for (i=0;i<m;++i)
