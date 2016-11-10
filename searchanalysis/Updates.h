@@ -27,7 +27,7 @@ public:
         tar=cols->getByName("teset1",num,offset);
         MyData::format(99,tar,comValue);
     }
-
+    //返回true表示更新成功
     bool update(MyData *myData)
     {
         myData->getValue(num,offset,tar,oldValue);

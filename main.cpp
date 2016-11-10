@@ -83,7 +83,6 @@ int main() {
     if (myTable->isUnique(datas));
     printf("%d\n",datas.size());
     myTable->insertData(datas);
-    myTable->indexInfoUpdate();
 /*    datas.clear();
     for (int i=0;i<1000;++i)
     {
@@ -106,7 +105,7 @@ int main() {
     printf("%d\n",ress.size());
     MyValue v1,v2;
     MyData::format(98,tar,v1);
-    MyData::format(99,tar,v2);
+    MyData::format(101,tar,v2);
     MyIndex* index=myTable->getIndex(0);
     vector<pair<int,int>> res;
     index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
@@ -114,8 +113,7 @@ int main() {
     myTable->getData(res,ress);
     printf("%d\n",res.size());
     printf("%d\n",ress.size());
-    myTable->updateData(&con0,&upd);
-    myTable->indexInfoUpdate();
+    myTable->updateDataSafe(&con0,&upd);
     res.clear();
 //    index->findData(&v1,COMPARE_UNDEFINED,&v2,COMPARE_UNDEFINED,res);
     index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
@@ -126,7 +124,6 @@ int main() {
     myTable->getData(res,ress);
     printf("%d\n",res.size());
     printf("%d\n",ress.size());
-    cout<<index->canNull<<endl;
 //    for (int i=0;i<ress.size();++i)
 //        ress[i]->print();
 //    for (size_t i = 0; i < ress.size(); ++i)

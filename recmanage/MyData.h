@@ -52,12 +52,12 @@ public:
     {
         delete []data;
     }
-
+    //格式化数据成存储时的形式，int对应char[4]，char是补全空格，varchar是给定的长度
     static bool format(int p,MyCol* myCol,MyValue &v);
 
     static bool format(std::string word,MyCol* myCol,MyValue &v);
 
-    //num是第几个varchar
+    //num是第几个varchar，offset是偏移量
     bool getValue(int num,int offset,MyCol* myCol,MyValue &v);
 
     bool setValue(int num,int offset,MyCol* myCol,MyValue &v);

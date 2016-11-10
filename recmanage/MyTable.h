@@ -66,40 +66,44 @@ public:
     void init();
 
     void pageUsedUpdate();
-
+    //插入一条数据
     bool insertData(MyData *data);
-
+    //插入一批数据，仅当有簇集索引时一条条插入，否则不管索引重复
     bool insertData(std::vector<MyData*> &data);
-
+    //查找符合要求的数据
     bool searchData(Constraints* con,std::vector<MyData*> &res);
-
+    //直接删除符合要求的数据
     bool deleteData(Constraints* con);
-
+    //直接更新符合要求的数据
     bool updateData(Constraints* con,Updates* upd);
-
+    //保证唯一索引值唯一，先把符合要求的数据拿出来更新好，放回去时重复的被丢弃
+    bool updateDataSafe(Constraints* con,Updates* upd);
+    //创建指定列的指定类型的索引
     bool createIndex(short colID,char type,bool canNull,bool canDel);
-
+    //删除指定列的索引
     bool dropIndex(short colID);
-
-    bool getAllIndex(std::vector<std::pair<short,char>> indexs);
-
+    //更新索引信息
     bool indexInfoUpdate();
+    //是否有唯一索引
+    bool hasUniqueIndex();
 
     MyIndex* getClusteredIndex();
 
     MyIndex* getIndex(int colID);
 
     int getClusteredID();
-
-    bool isUnique(MyData*); //重复则返回false
-
-    bool isUnique(std::vector<MyData*> &datas);  //有重复就去掉重复的，并返回false
-
+    //唯一索引有重复则返回false
+    bool isUnique(MyData*);
+    //唯一索引有重复就去掉重复的，并返回false
+    bool isUnique(std::vector<MyData*> &datas);
+    //通过页号和槽号获得数据
     bool getData(std::vector<std::pair<int,int>> &datas,std::vector<MyData*> &res);
-
+    //删除指定页号和槽号的符合要求的数据，如果槽号是-1则是页中全部
     bool deleteData(std::vector<std::pair<int,int>> &datas,Constraints* con);
-
+    //更新指定页号和槽号的数据，不管唯一索引的重复问题
     bool updateData(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd);
+    //保证唯一索引值唯一，先把符合要求的数据拿出来更新好，放回去时重复的被丢弃
+    bool updateDataSafe(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd);
 };
 
 #endif //DBPROJECT_MYTABLE_H

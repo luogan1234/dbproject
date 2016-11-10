@@ -19,9 +19,13 @@ public:
     {
     }
 
-    int compare(MyValue* v);
+    int compare(MyValue* v);    //NULL最小，包括比""小，索引中使用
 
-    static int compare(MyValue* v1,MyValue* v2);
+    int compareNoNull(MyValue* v);   //NULL不与任何其他串可比，都是undefined，在查询时NULL不参与运算和比较
+
+    static int compare(MyValue* v1,MyValue* v2);    //NULL最小，包括比""小，索引中使用
+
+    static int compareNoNull(MyValue* v1,MyValue* v2);  //NULL不与任何其他串可比，都是undefined，在查询时NULL不参与运算和比较
 
     void print();
 

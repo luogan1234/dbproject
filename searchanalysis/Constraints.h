@@ -21,7 +21,7 @@ public:
     {
         ranp=p;tot=0;
     }
-
+    //返回true表示满足条件
     bool checkData(MyData *data)
     {
         if (ranp==0)

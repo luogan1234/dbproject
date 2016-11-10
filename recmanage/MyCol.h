@@ -13,7 +13,7 @@ public:
     int type,len;
     bool isPrimary,canBeNull;       //是否是主键
     std::string name,outerTableName;    //名字和外键
-    std::vector<std::string> wordList;
+    std::vector<std::string> wordList;  //有些列只能是给定词
 
     MyCol(int t,int l,bool i,bool c,std::string n,std::string o="")
     {
@@ -25,7 +25,7 @@ public:
     {
         getFromString(rec);
     }
-
+    //记录可选值
     void addWordList(std::string w)
     {
         wordList.push_back(w);

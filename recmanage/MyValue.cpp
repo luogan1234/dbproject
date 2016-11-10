@@ -121,6 +121,15 @@ int MyValue::compare(MyValue* v)
     return COMPARE_UNDEFINED;
 }
 
+int MyValue::compareNoNull(MyValue *v)
+{
+    if (isNull||v->isNull)
+    {
+        return COMPARE_UNDEFINED;
+    }
+    return compare(v);
+}
+
 int MyValue::compare(MyValue* v1,MyValue* v2)
 {
     if (v1->type!=v2->type||v1->isNull||v2->isNull)
@@ -168,4 +177,13 @@ int MyValue::compare(MyValue* v1,MyValue* v2)
             return COMPARE_EQUAL;
     }
     return COMPARE_UNDEFINED;
+}
+
+int MyValue::compareNoNull(MyValue *v1,MyValue *v2)
+{
+    if (v1->isNull||v2->isNull)
+    {
+        return COMPARE_UNDEFINED;
+    }
+    return compare(v1,v2);
 }

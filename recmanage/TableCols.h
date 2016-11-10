@@ -34,9 +34,9 @@ public:
     bool getFromString(std::string rec);
 
     void setOrder();
-
-    MyCol* getByName(std::string _name,int &_num,int &_offset);      //num代表第几个varchar，offset代表数据起始位置偏移量
-
+    //num代表第几个varchar，offset代表数据起始位置偏移量，通过列名查找
+    MyCol* getByName(std::string _name,int &_num,int &_offset);
+    //num代表第几个varchar，offset代表数据起始位置偏移量，通过列序号查找
     void getByOrder(int p,int &_num,int &_offset);
 };
 
