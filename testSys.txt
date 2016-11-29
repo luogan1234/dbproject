@@ -1,0 +1,26 @@
+SHOW DATABASES;
+CREATE DATABASE orderDB;
+CREATE DATABASE orderDB2;
+SHOW DATABASES;
+USE orderDB;
+SHOW TABLES;
+CREATE TABLE customer(
+id int(10) NOT NULL,
+name char(25) NOT NULL,
+gender char(1) NOT NULL,
+PRIMARY KEY(id)
+);
+CREATE TABLE customer1(
+id int(10) NOT NULL,
+name char(25) NOT NULL,
+gender char(1) NOT NULL,
+PRIMARY KEY(id)
+);
+SHOW TABLES;
+DESC customer;
+DROP TABLE customer;
+SHOW TABLES;
+DROP DATABASE orderDB;
+SHOW DATABASES;
+
+
