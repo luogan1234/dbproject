@@ -1,1 +1,7 @@
 data
+dbproject
+.idea
+CMakeFiles
+Makefile
+cmake_install.cmake
+CMakeCahe.txt
