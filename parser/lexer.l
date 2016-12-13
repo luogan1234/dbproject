@@ -26,7 +26,7 @@ NUMBER              [0-9][0-9]*
 "PRIMARY KEY" 			{ return T_PRIMARY_KEY; }
 "DESC" 					{ return T_DESC; }
 "int"					{ return T_INT; }
-"char"				{ return T_VARCHAR; }
+"char"				    { return T_VARCHAR; }
 ";"						{ return T_COLON; }
 ","						{ return T_COMMA; }
 "("						{ return T_LEFT_BRACKET; }
