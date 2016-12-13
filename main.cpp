@@ -107,7 +107,7 @@ int main() {
     MyData::format(98,tar,v1);
     MyData::format(101,tar,v2);
     MyIndex* index=myTable->getIndex(0);
-    vector<pair<int,int>> res;
+    vector<pair<int,int > > res;
     index->findData(&v1,COMPARE_SMALLER_EQUAL,&v2,COMPARE_LARGER_EQUAL,res);
     ress.clear();
     myTable->getData(res,ress);

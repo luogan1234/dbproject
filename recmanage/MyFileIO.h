@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <stdlib.h>
 #include "../bufmanager/BufPageManager.h"
 #include "MyTable.h"
 #include "MyIndex.h"

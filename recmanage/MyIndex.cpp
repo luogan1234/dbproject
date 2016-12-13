@@ -110,7 +110,7 @@ int MyIndex::insertDataClustered(MyValue &value)
     return resPage;
 }
 
-bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vector<pair<int,int>> &res)
+bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vector<pair<int,int> > &res)
 {
     if (!canNull&&(value1->isNull||value2->isNull))
         return false;

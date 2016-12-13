@@ -97,13 +97,13 @@ public:
     //唯一索引有重复就去掉重复的，并返回false
     bool isUnique(std::vector<MyData*> &datas);
     //通过页号和槽号获得数据
-    bool getData(std::vector<std::pair<int,int>> &datas,std::vector<MyData*> &res);
+    bool getData(std::vector<std::pair<int,int> > &datas,std::vector<MyData*> &res);
     //删除指定页号和槽号的符合要求的数据，如果槽号是-1则是页中全部
-    bool deleteData(std::vector<std::pair<int,int>> &datas,Constraints* con);
+    bool deleteData(std::vector<std::pair<int,int> > &datas,Constraints* con);
     //更新指定页号和槽号的数据，不管唯一索引的重复问题
-    bool updateData(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd);
+    bool updateData(std::vector<std::pair<int,int> > &datas,Constraints* con,Updates* upd);
     //保证唯一索引值唯一，先把符合要求的数据拿出来更新好，放回去时重复的被丢弃
-    bool updateDataSafe(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd);
+    bool updateDataSafe(std::vector<std::pair<int,int> > &datas,Constraints* con,Updates* upd);
 };
 
 #endif //DBPROJECT_MYTABLE_H
