@@ -18,12 +18,15 @@ public:
 private slots:
     void createDatabase();
     void openDatabase();
+    void editRecord(int row, int column);
 
 private:
     Ui::MainWindow *ui;
     // make them member variable
     QPushButton* createButton;
     QPushButton* openButton;
+
+    QTabWidget* tabWidget;
 };
 
 #endif // MAINWINDOW_H
