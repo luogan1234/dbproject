@@ -11,6 +11,10 @@ MainWindow::MainWindow(QWidget *parent) :
     openButton = ui->openButton;
 
     connect(createButton, SIGNAL(clicked(bool)), this, SLOT(createDatabase()));
+    connect(openButton, SIGNAL(clicked(bool)), this, SLOT(openDatabase()));
+
+    // to simplify code: fixed size
+    setFixedSize(1243, 703);
 }
 
 MainWindow::~MainWindow() {
@@ -19,4 +23,8 @@ MainWindow::~MainWindow() {
 
 void MainWindow::createDatabase() {
     createButton->setText("Test");
+}
+
+void MainWindow::openDatabase() {
+    openButton->setText("Test");
 }

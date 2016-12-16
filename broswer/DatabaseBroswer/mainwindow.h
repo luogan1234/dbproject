@@ -17,6 +17,7 @@ public:
 
 private slots:
     void createDatabase();
+    void openDatabase();
 
 private:
     Ui::MainWindow *ui;

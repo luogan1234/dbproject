@@ -19,6 +19,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
 
@@ -30,6 +31,9 @@ public:
     QWidget *centralWidget;
     QPushButton *createButton;
     QPushButton *openButton;
+    QTabWidget *tabWidget;
+    QWidget *tab;
+    QWidget *tab_2;
     QStatusBar *statusBar;
     QToolBar *mainToolBar;
     QMenuBar *menuBar;
@@ -44,10 +48,19 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         createButton = new QPushButton(centralWidget);
         createButton->setObjectName(QStringLiteral("createButton"));
-        createButton->setGeometry(QRect(10, 10, 80, 26));
+        createButton->setGeometry(QRect(10, 10, 151, 41));
         openButton = new QPushButton(centralWidget);
         openButton->setObjectName(QStringLiteral("openButton"));
-        openButton->setGeometry(QRect(100, 10, 80, 26));
+        openButton->setGeometry(QRect(170, 10, 151, 41));
+        tabWidget = new QTabWidget(centralWidget);
+        tabWidget->setObjectName(QStringLiteral("tabWidget"));
+        tabWidget->setGeometry(QRect(10, 60, 1221, 581));
+        tab = new QWidget();
+        tab->setObjectName(QStringLiteral("tab"));
+        tabWidget->addTab(tab, QString());
+        tab_2 = new QWidget();
+        tab_2->setObjectName(QStringLiteral("tab_2"));
+        tabWidget->addTab(tab_2, QString());
         MainWindow->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
@@ -55,6 +68,7 @@ public:
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
         MainWindow->addToolBar(Qt::TopToolBarArea, mainToolBar);
+        MainWindow->insertToolBarBreak(mainToolBar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 1238, 23));
@@ -66,6 +80,9 @@ public:
 
         retranslateUi(MainWindow);
 
+        tabWidget->setCurrentIndex(1);
+
+
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
 
@@ -74,6 +91,8 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
         createButton->setText(QApplication::translate("MainWindow", "Create", 0));
         openButton->setText(QApplication::translate("MainWindow", "Open", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Tab 1", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Tab 2", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
     } // retranslateUi
 

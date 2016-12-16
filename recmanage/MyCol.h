@@ -14,11 +14,15 @@ public:
     bool isPrimary,canBeNull;       //是否是主键
     std::string name,outerTableName;    //名字和外键
     std::vector<std::string> wordList;  //有些列只能是给定词
+    //-----add by lmq------
+    bool setPrimary;
 
-    MyCol(int t,int l,bool i,bool c,std::string n,std::string o="")
+    MyCol(int t,int l,bool i,bool c,std::string n,std::string o="", bool sP = false)
     {
         type=t;len=l;isPrimary=i;canBeNull=c;name=n;
         wordList.clear();outerTableName=o;
+    //-----add by lmq------
+        setPrimary = sP;
     }
 
     MyCol(std::string rec)

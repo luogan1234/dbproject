@@ -71,36 +71,17 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
-#include "../recmanage/MyTable.h"
-#include "../StaticMethod.h"
-#include "../recmanage/MyFileIO.h"
-#include "../recmanage/MyValue.h"
 #include "../fileio/FileManager.h"
-//#include "tree.h"
+#include "../recmanage/TableCols.h"
+#include "../recmanage/MyCol.h"
+#include "../recmanage/MyData.h"
+#include "../query/MyCommands.h"
+
 using namespace std;
 extern int line;
-const int MAX_DBNUM = 1000;
 
-bool hasGetBuffer = false;
-char buffer[100];	//create database here, decided by where program is 
-struct myDB
-{
-	string name;
-	string path;
-};
-myDB myDBs[MAX_DBNUM];
-int dbNum = 0;
-int useDB = -1; //use which database
-
-int findDB(string name){
-	for(int i = 0; i < dbNum; ++i){
-		if(myDBs[i].name == name){
-			return i;
-		}
-	}
-	return -1;
-}
-
+MyCommands commands;
+int comNum = 0;
 int yylex();
 
 void yyerror(const char *str)
@@ -110,7 +91,7 @@ void yyerror(const char *str)
 
 #define YYERROR_VERBOSE 1
 
-#line 114 "parser.tab.c" /* yacc.c:339  */
+#line 95 "parser.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -139,6 +120,15 @@ void yyerror(const char *str)
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 29 "parser.y" /* yacc.c:355  */
+
+#include "../recmanage/TableCols.h"
+#include "../recmanage/MyCol.h"
+#include "../recmanage/MyData.h"
+#include "../query/MyCommands.h"
+
+#line 132 "parser.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -158,12 +148,33 @@ extern int yydebug;
     T_NOT_NULL = 268,
     T_PRIMARY_KEY = 269,
     T_DESC = 270,
-    T_INT = 271,
-    T_VARCHAR = 272,
-    T_COLON = 273,
-    T_COMMA = 274,
-    T_LEFT_BRACKET = 275,
-    T_RIGHT_BRACKET = 276
+    T_IS = 271,
+    T_AND = 272,
+    T_INT = 273,
+    T_VARCHAR = 274,
+    T_INDEX = 275,
+    T_INSERT = 276,
+    T_INTO = 277,
+    T_VALUES = 278,
+    T_DELETE = 279,
+    T_FROM = 280,
+    T_WHERE = 281,
+    T_UPDATE = 282,
+    T_SET = 283,
+    T_SELECT = 284,
+    T_NULL = 285,
+    T_EQUAL = 286,
+    T_NOT_EQUAL = 287,
+    T_NO_MORE_THAN = 288,
+    T_NO_LESS_THAN = 289,
+    T_MORE_THAN = 290,
+    T_LESS_THAN = 291,
+    T_COLON = 292,
+    T_COMMA = 293,
+    T_LEFT_BRACKET = 294,
+    T_RIGHT_BRACKET = 295,
+    T_QUOTATION = 296,
+    T_DOT = 297
   };
 #endif
 
@@ -172,14 +183,17 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 49 "parser.y" /* yacc.c:355  */
+#line 35 "parser.y" /* yacc.c:355  */
 
     char *id_t;
+    TableCols *fieldList_t;
+    MyCol *field_t;
+    MyType *type_t;
     char *string_t;
     int  num_t;
     char char_t;
 
-#line 183 "parser.tab.c" /* yacc.c:355  */
+#line 197 "parser.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -196,7 +210,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 200 "parser.tab.c" /* yacc.c:358  */
+#line 214 "parser.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -438,21 +452,21 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   40
+#define YYLAST   121
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  22
+#define YYNTOKENS  43
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  12
+#define YYNNTS  24
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  24
+#define YYNRULES  59
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  51
+#define YYNSTATES  135
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   276
+#define YYMAXUTOK   297
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -488,16 +502,21 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    64,    64,    65,    68,    69,    70,    73,    84,   116,
-     137,   149,   168,   189,   206,   214,   215,   217,   218,   219,
-     221,   222,   224,   226,   228
+       0,    58,    58,    61,    66,    67,    68,    69,    71,    78,
+      84,    90,    96,   105,   112,   118,   123,   129,   130,   131,
+     133,   134,   136,   148,   160,   166,   171,   176,   181,   186,
+     187,   189,   190,   192,   193,   194,   195,   197,   198,   200,
+     201,   203,   203,   203,   203,   203,   203,   205,   206,   208,
+     209,   211,   212,   214,   215,   216,   218,   220,   222,   224
 };
 #endif
 
@@ -508,10 +527,16 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "T_VALUE_INT", "T_ID", "T_CREATE",
   "T_DATABASE", "T_DATABASES", "T_DROP", "T_USE", "T_SHOW", "T_TABLE",
-  "T_TABLES", "T_NOT_NULL", "T_PRIMARY_KEY", "T_DESC", "T_INT",
-  "T_VARCHAR", "T_COLON", "T_COMMA", "T_LEFT_BRACKET", "T_RIGHT_BRACKET",
-  "$accept", "program", "stmt", "sysStmt", "dbStmt", "tbStmt", "fieldList",
-  "field", "type", "dbName", "tbName", "colName", YY_NULLPTR
+  "T_TABLES", "T_NOT_NULL", "T_PRIMARY_KEY", "T_DESC", "T_IS", "T_AND",
+  "T_INT", "T_VARCHAR", "T_INDEX", "T_INSERT", "T_INTO", "T_VALUES",
+  "T_DELETE", "T_FROM", "T_WHERE", "T_UPDATE", "T_SET", "T_SELECT",
+  "T_NULL", "T_EQUAL", "T_NOT_EQUAL", "T_NO_MORE_THAN", "T_NO_LESS_THAN",
+  "T_MORE_THAN", "T_LESS_THAN", "T_COLON", "T_COMMA", "T_LEFT_BRACKET",
+  "T_RIGHT_BRACKET", "T_QUOTATION", "T_DOT", "$accept", "program", "stmt",
+  "sysStmt", "dbStmt", "tbStmt", "idxStmt", "fieldList", "field", "type",
+  "valueLists", "valueList", "whereClause", "expr", "col", "op",
+  "setClause", "selector", "tableList", "value", "dbName", "tbName",
+  "colName", "T_VALUE_STRING", YY_NULLPTR
 };
 #endif
 
@@ -522,16 +547,18 @@ static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
+     295,   296,   297
 };
 # endif
 
-#define YYPACT_NINF -16
+#define YYPACT_NINF -75
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-16)))
+  (!!((Yystate) == (-75)))
 
-#define YYTABLE_NINF -1
+#define YYTABLE_NINF -58
 
 #define yytable_value_is_error(Yytable_value) \
   0
@@ -540,12 +567,20 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -16,     0,   -16,    -4,     6,    -1,     7,    16,   -16,    -5,
-      10,    11,    -1,    16,    -1,    16,   -16,   -16,   -16,   -16,
-     -16,   -16,   -16,   -16,   -16,   -16,     2,   -16,   -16,    -3,
-     -16,    12,   -15,   -16,     9,    20,    -3,   -16,    13,    14,
-      17,    15,   -16,    24,    28,   -16,   -16,    18,    19,   -16,
-     -16
+     -75,    47,   -75,    31,    52,    -2,    26,    35,   -13,    42,
+      35,    56,   -75,    -7,     9,    33,    38,    -2,    35,    35,
+      -2,    35,    35,   -75,   -75,   -75,   -75,   -75,   -75,    35,
+      35,    59,    36,   -75,   -17,    51,   -75,   -75,   -75,   -75,
+     -75,   -75,    55,    57,   -75,   -75,    58,    66,    65,    91,
+      35,    56,    91,     6,    91,    91,    60,    56,   -75,    10,
+      69,    39,   -75,   -75,   -75,    62,   -21,   -75,    67,    63,
+      64,     4,    68,    81,    48,    56,    91,     4,    56,    35,
+      91,     6,   -75,    70,    71,    89,   -75,   -75,   -75,   -75,
+     101,    21,   -75,   -75,    72,    56,     5,   -75,   -75,   -75,
+     -75,   -75,   -75,     2,    81,    76,   -75,    81,   -75,    73,
+     -75,   105,   109,   -75,    74,     4,   -75,     4,    81,   -75,
+     -75,   -75,   -75,   -75,     4,   -75,    77,    78,   -75,   -75,
+      50,   -75,   -75,   -75,   -75
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -553,75 +588,115 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     1,     0,     0,     0,     0,     0,     3,     0,
-       0,     0,     0,     0,     0,     0,    22,    10,     7,    11,
-      23,    14,     4,     5,     6,     8,     0,     9,    13,     0,
-      24,     0,     0,    15,     0,     0,     0,    12,     0,     0,
-      17,     0,    16,     0,     0,    18,    19,     0,     0,    20,
-      21
+       2,     0,     1,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     3,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,    56,    11,     8,    12,    57,    15,     0,
+       0,     0,    58,    49,     0,     0,    40,     4,     5,     6,
+       7,     9,     0,     0,    10,    14,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    58,     0,
+       0,     0,    51,    50,    39,     0,     0,    22,     0,     0,
+       0,     0,    16,    17,     0,     0,     0,     0,     0,     0,
+       0,     0,    13,     0,     0,    24,    20,    21,    53,    55,
+       0,     0,    31,    54,     0,     0,     0,    41,    42,    43,
+      44,    46,    45,     0,    18,     0,    47,    19,    52,     0,
+      23,     0,     0,    25,     0,     0,    29,     0,    36,    35,
+      34,    33,    38,    37,     0,    26,     0,     0,    59,    32,
+       0,    48,    27,    28,    30
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -16,   -16,   -16,   -16,   -16,   -16,   -16,     1,   -16,     4,
-       8,     3
+     -75,   -75,   -75,   -75,   -75,   -75,   -75,   -75,    40,   -75,
+     -75,    -3,   -64,   -75,   -11,   -75,   -75,   -75,   -75,   -74,
+      49,    -6,   -27,   -75
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     8,     9,    10,    11,    32,    33,    40,    17,
-      21,    34
+      -1,     1,    12,    13,    14,    15,    16,    66,    67,    85,
+      72,    91,    73,   121,    74,   103,    59,    34,    61,    92,
+      24,    35,    36,    93
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule whose
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
-static const yytype_uint8 yytable[] =
+static const yytype_int16 yytable[] =
 {
-       2,    30,    12,    16,    36,     3,    37,    13,     4,     5,
-       6,    31,    14,    22,    18,     7,    25,    15,    27,    19,
-      20,    26,    29,    28,    30,    38,    39,    47,    23,    24,
-      45,    48,    35,    43,    44,     0,    46,    42,    41,    49,
-      50
+      33,    28,    23,   106,    31,    88,    32,    88,    50,    29,
+      58,   104,    42,    43,   107,    45,    46,    81,   119,    82,
+      65,    51,    60,    47,    48,    64,    68,    69,    70,   123,
+      37,   118,    89,    25,    89,   120,    75,    17,    26,    27,
+      63,   129,    18,    90,    62,    90,    38,     2,    76,   105,
+     131,    19,     3,   109,    68,     4,     5,     6,    20,   115,
+      32,   116,     7,    21,    96,    78,    41,    30,     8,    44,
+      39,     9,    22,   108,    10,    40,    11,    79,   -57,    97,
+      98,    99,   100,   101,   102,    83,    84,    49,   115,    56,
+     134,    57,   122,    52,    53,    58,    54,    55,    95,    71,
+      77,    80,   113,    86,    87,   114,    94,   124,   126,   111,
+     112,   117,   127,   125,   130,   128,     0,   132,   133,     0,
+       0,   110
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     4,     6,     4,    19,     5,    21,    11,     8,     9,
-      10,    14,     6,    18,     7,    15,    12,    11,    14,    12,
-       4,    13,    20,    15,     4,    16,    17,     3,    18,    18,
-      13,     3,    20,    20,    20,    -1,    21,    36,    35,    21,
-      21
+      11,     7,     4,    77,    10,     3,     4,     3,    25,    22,
+       4,    75,    18,    19,    78,    21,    22,    38,    13,    40,
+      14,    38,    49,    29,    30,    52,    53,    54,    55,   103,
+      37,    95,    30,     7,    30,    30,    26,     6,    12,     4,
+      51,   115,    11,    41,    50,    41,    37,     0,    38,    76,
+     124,    20,     5,    80,    81,     8,     9,    10,     6,    38,
+       4,    40,    15,    11,    16,    26,    17,    25,    21,    20,
+      37,    24,    20,    79,    27,    37,    29,    38,    42,    31,
+      32,    33,    34,    35,    36,    18,    19,    28,    38,    23,
+      40,    26,   103,    42,    39,     4,    39,    39,    17,    39,
+      31,    39,    13,    40,    40,     4,    38,    31,     3,    39,
+      39,    39,     3,    40,   117,    41,    -1,    40,    40,    -1,
+      -1,    81
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    23,     0,     5,     8,     9,    10,    15,    24,    25,
-      26,    27,     6,    11,     6,    11,     4,    31,     7,    12,
-       4,    32,    18,    18,    18,    31,    32,    31,    32,    20,
-       4,    14,    28,    29,    33,    20,    19,    21,    16,    17,
-      30,    33,    29,    20,    20,    13,    21,     3,     3,    21,
-      21
+       0,    44,     0,     5,     8,     9,    10,    15,    21,    24,
+      27,    29,    45,    46,    47,    48,    49,     6,    11,    20,
+       6,    11,    20,     4,    63,     7,    12,     4,    64,    22,
+      25,    64,     4,    57,    60,    64,    65,    37,    37,    37,
+      37,    63,    64,    64,    63,    64,    64,    64,    64,    28,
+      25,    38,    42,    39,    39,    39,    23,    26,     4,    59,
+      65,    61,    64,    57,    65,    14,    50,    51,    65,    65,
+      65,    39,    53,    55,    57,    26,    38,    31,    26,    38,
+      39,    38,    40,    18,    19,    52,    40,    40,     3,    30,
+      41,    54,    62,    66,    38,    17,    16,    31,    32,    33,
+      34,    35,    36,    58,    55,    65,    62,    55,    64,    65,
+      51,    39,    39,    13,     4,    38,    40,    39,    55,    13,
+      30,    56,    57,    62,    31,    40,     3,     3,    41,    62,
+      54,    62,    40,    40,    40
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    22,    23,    23,    24,    24,    24,    25,    26,    26,
-      26,    26,    27,    27,    27,    28,    28,    29,    29,    29,
-      30,    30,    31,    32,    33
+       0,    43,    44,    44,    45,    45,    45,    45,    46,    47,
+      47,    47,    47,    48,    48,    48,    48,    48,    48,    48,
+      49,    49,    50,    50,    51,    51,    51,    52,    52,    53,
+      53,    54,    54,    55,    55,    55,    55,    56,    56,    57,
+      57,    58,    58,    58,    58,    58,    58,    59,    59,    60,
+      60,    61,    61,    62,    62,    62,    63,    64,    65,    66
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     2,     2,     2,     2,     2,     3,     3,
-       2,     2,     6,     3,     2,     1,     3,     2,     3,     4,
-       4,     4,     1,     1,     1
+       0,     2,     0,     2,     2,     2,     2,     2,     2,     3,
+       3,     2,     2,     6,     3,     2,     5,     5,     6,     6,
+       6,     6,     1,     3,     2,     3,     4,     4,     4,     3,
+       5,     1,     3,     3,     3,     3,     3,     1,     1,     3,
+       1,     1,     1,     1,     1,     1,     1,     3,     5,     1,
+       3,     1,     3,     1,     1,     1,     1,     1,     1,     3
 };
 
 
@@ -1297,194 +1372,210 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 7:
-#line 74 "parser.y" /* yacc.c:1646  */
+        case 2:
+#line 58 "parser.y" /* yacc.c:1646  */
     {
-		cout << "--------------show databases--------------" << endl;
-		cout << "database number: " << dbNum << endl;
-		for(int i = 0; i < dbNum; ++i){
-			cout << myDBs[i].name << " ";
-		}
-		cout << endl;
-		cout << "--------------show databases end--------------" << endl;
+		cout << "(((((" << comNum << endl;
 	}
-#line 1312 "parser.tab.c" /* yacc.c:1646  */
+#line 1381 "parser.tab.c" /* yacc.c:1646  */
     break;
 
-  case 8:
-#line 85 "parser.y" /* yacc.c:1646  */
+  case 3:
+#line 62 "parser.y" /* yacc.c:1646  */
     {
-		cout << "--------------create database--------------" << (yyvsp[0].id_t) << endl;
-		if(!hasGetBuffer){
-			getcwd(buffer, 100);
-			cout << "get buffer" << endl;
-			hasGetBuffer = true;
-		}
-		if( (access( (yyvsp[0].id_t), 0 )) != -1 ){
-			cout << "database " << (yyvsp[0].id_t) << " was created before" << endl;
-			if(findDB(string((yyvsp[0].id_t))) == -1){
-				myDBs[dbNum].name = (yyvsp[0].id_t);
-   				myDBs[dbNum].path = buffer;
-   				myDBs[dbNum].path += '/'+ myDBs[dbNum].name;
-   				dbNum ++;
-			}
-		} else {
-			int isCreate = mkdir((yyvsp[0].id_t), S_IRWXU);
-   			if( !isCreate ){
-   				cout << "database " << (yyvsp[0].id_t) << " has been created" << endl;
-   				myDBs[dbNum].name = (yyvsp[0].id_t);
-   				myDBs[dbNum].path = buffer;
-   				myDBs[dbNum].path += '/'+ myDBs[dbNum].name;
-   				dbNum ++;
-   			}
-   			else
-   				cout << "create path failed!" << endl;
-			
-		}
-		cout << "buffer: " << buffer << endl;
-		cout << "--------------create database end--------------" << endl;
-	}
-#line 1348 "parser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 9:
-#line 117 "parser.y" /* yacc.c:1646  */
-    {
-		cout << "--------------drop database--------------" << (yyvsp[0].id_t) << endl;
-		int fdDB = findDB(string((yyvsp[0].id_t)));
-		if(fdDB == -1){
-			cout << "fail to find database: " << (yyvsp[0].id_t) << endl;
-		} else{
-			if(useDB == fdDB)
-				useDB = -1;
-			int isCreate = mkdir(myDBs[fdDB].path.c_str(), S_IRWXU);
-   			if( !isCreate ){
-   				cout << "error " << myDBs[fdDB].path << endl;
-   			} else{
-   				remove(myDBs[fdDB].path.c_str());
-   				myDBs[fdDB] = myDBs[dbNum-1];
-				dbNum--;
-				cout << "has dropped database: " << (yyvsp[0].id_t) << endl;   				
-   			}
-		}
-		cout << "--------------drop database end--------------" << endl;
-	}
-#line 1373 "parser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 10:
-#line 138 "parser.y" /* yacc.c:1646  */
-    {
-		cout << "--------------use database--------------" << (yyvsp[0].id_t) << endl;
-		int fdDB = findDB(string((yyvsp[0].id_t)));
-		if(fdDB == -1){
-			cout << "fail to find database: " << (yyvsp[0].id_t) << endl;
-		} else{
-			useDB = fdDB;
-			cout << "change to use database: " << myDBs[useDB].name << endl;
-		}
-		cout << "--------------use database end--------------" << endl;
+		comNum++;cout << ")))))" << comNum << endl;
 	}
 #line 1389 "parser.tab.c" /* yacc.c:1646  */
     break;
 
-  case 11:
-#line 150 "parser.y" /* yacc.c:1646  */
+  case 8:
+#line 72 "parser.y" /* yacc.c:1646  */
     {
-		cout << "--------------show tables--------------" << endl;
-		if(useDB == -1){
-			cout << "Please choose(use) a database" << endl;
-		} else{
-			if( (access(myDBs[useDB].path.c_str() , 0 )) != -1 ){
-				string command = "ls ";
-				command += myDBs[useDB].path;
-				system(command.c_str());
-    			cout << endl;
-			} else {
-   				cout << "database error" << endl;
-			}
-		}
-		cout << "--------------show tables end--------------" << endl;
+		cout << "--------------show databases--------------" << endl;
+		commands.showDBs();
+		cout << "--------------show databases end--------------" << endl;
 	}
-#line 1410 "parser.tab.c" /* yacc.c:1646  */
+#line 1399 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 79 "parser.y" /* yacc.c:1646  */
+    {
+		cout << "--------------create database--------------" << (yyvsp[0].id_t) << endl;
+		commands.createDB((yyvsp[0].id_t));
+		cout << "--------------create database end--------------" << endl;
+	}
+#line 1409 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 85 "parser.y" /* yacc.c:1646  */
+    {
+		cout << "--------------drop database--------------" << (yyvsp[0].id_t) << endl;
+		commands.dropDB((yyvsp[0].id_t));
+		cout << "--------------drop database end--------------" << endl;
+	}
+#line 1419 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 11:
+#line 91 "parser.y" /* yacc.c:1646  */
+    {
+		cout << "--------------use database--------------" << (yyvsp[0].id_t) << endl;
+		commands.useDB((yyvsp[0].id_t));
+		cout << "--------------use database end--------------" << endl;
+	}
+#line 1429 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 169 "parser.y" /* yacc.c:1646  */
+#line 97 "parser.y" /* yacc.c:1646  */
     {
-		cout << "--------------create table--------------" << (yyvsp[-3].id_t) << endl;
-		if(useDB == -1){
-			cout << "Please choose(use) a database" << endl;
-		} else{
-			string tableName = string((yyvsp[-3].id_t));
-			string tablePath = myDBs[useDB].path + '/' + tableName;
-			if( (access(tablePath.c_str() , 0 )) != -1 ){
-				cout << "table " << tableName << " was created before" << endl;
-			} else {
-				ofstream fout(tablePath);
-   				if(!fout)
-   					cout << "create path failed!" << endl;
-   				else
-   					cout << "table " << (yyvsp[-3].id_t) << " has been created" << endl;
-				fout.close();
-			}
-		}
-		cout << "--------------create table end--------------" << endl;
+		cout << "--------------show tables--------------" << endl;
+		//show table names
+		commands.showTables();
+		cout << "--------------show tables end--------------" << endl;
 	}
-#line 1435 "parser.tab.c" /* yacc.c:1646  */
+#line 1440 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 190 "parser.y" /* yacc.c:1646  */
+#line 106 "parser.y" /* yacc.c:1646  */
     {
-		cout << "--------------drop table--------------" << (yyvsp[0].id_t) << endl;
-		if(useDB == -1){
-			cout << "Please choose(use) a database" << endl;
-		} else{
-			string tableName = string((yyvsp[0].id_t));
-			string tablePath = myDBs[useDB].path + '/' + tableName;
-			if( (access(tablePath.c_str() , 0 )) != -1 ){
-				remove(tablePath.c_str());
-				cout << "table " << tableName << " at " << tablePath << " has been dropped" << endl;
-			} else {	
- 				cout << "table " << (yyvsp[0].id_t) << " doesn't exist" << endl;
-			}
-		}
-		cout << "--------------drop table end--------------" << endl;
+		cout << "--------------create table--------------" << (yyvsp[-3].id_t) << endl;
+		// if($5 != 0) delete $5;
+		commands.createTable((yyvsp[-3].id_t), (yyvsp[-1].fieldList_t)->toString());
+		cout << "--------------create table end--------------" << endl;
 	}
-#line 1456 "parser.tab.c" /* yacc.c:1646  */
+#line 1451 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 207 "parser.y" /* yacc.c:1646  */
+#line 113 "parser.y" /* yacc.c:1646  */
     {
-		cout << "desc table " << (yyvsp[0].id_t) << endl;
+		cout << "--------------drop table--------------" << (yyvsp[0].id_t) << endl;
+		commands.dropTable((yyvsp[0].id_t));
+		cout << "--------------drop table end--------------" << endl;
+	}
+#line 1461 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 15:
+#line 119 "parser.y" /* yacc.c:1646  */
+    {
 		cout << "--------------DESC table--------------" << (yyvsp[0].id_t) << endl;
 		cout << "--------------DESC table end--------------" << endl;
 	}
-#line 1466 "parser.tab.c" /* yacc.c:1646  */
+#line 1470 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 16:
+#line 124 "parser.y" /* yacc.c:1646  */
+    {
+		cout << "--------------INSERT--------------" << (yyvsp[-2].id_t) << endl;
+
+		cout << "--------------INSERT end--------------" << endl;
+	}
+#line 1480 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 224 "parser.y" /* yacc.c:1646  */
-    {(yyval.id_t)=(yyvsp[0].id_t);cout << "dbName " << (yyvsp[0].id_t) << endl;}
-#line 1472 "parser.tab.c" /* yacc.c:1646  */
+#line 137 "parser.y" /* yacc.c:1646  */
+    {
+		(yyval.fieldList_t) = new TableCols();
+		// cout << "<<<<<" << endl;
+		if((yyvsp[0].field_t)->setPrimary == false)
+			(yyval.fieldList_t)->addCol(*(yyvsp[0].field_t));
+		else{
+			(yyval.fieldList_t)->setPrimary((yyvsp[0].field_t)->name);
+			delete (yyvsp[0].field_t);
+		}
+	}
+#line 1495 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 226 "parser.y" /* yacc.c:1646  */
-    {(yyval.id_t)=(yyvsp[0].id_t);cout << "tbName " << (yyvsp[0].id_t) << endl;}
-#line 1478 "parser.tab.c" /* yacc.c:1646  */
+#line 149 "parser.y" /* yacc.c:1646  */
+    {
+		// cout << ">>>>>" << endl;
+		(yyval.fieldList_t) = (yyvsp[-2].fieldList_t);
+		if((yyvsp[0].field_t)->setPrimary == false)
+			(yyval.fieldList_t)->addCol(*(yyvsp[0].field_t));
+		else{
+			(yyval.fieldList_t)->setPrimary((yyvsp[0].field_t)->name);
+			delete (yyvsp[0].field_t);
+		}
+	}
+#line 1510 "parser.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 228 "parser.y" /* yacc.c:1646  */
-    {(yyval.id_t)=(yyvsp[0].id_t);cout << "colName " << (yyvsp[0].id_t) << endl;}
-#line 1484 "parser.tab.c" /* yacc.c:1646  */
+#line 161 "parser.y" /* yacc.c:1646  */
+    {
+		//type len is_primary can_be_null name
+		(yyval.field_t) = new MyCol((yyvsp[0].type_t)->dataType, (yyvsp[0].type_t)->dataWide, false, true, (yyvsp[-1].id_t));
+	}
+#line 1519 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 25:
+#line 167 "parser.y" /* yacc.c:1646  */
+    {
+		(yyval.field_t) = new MyCol((yyvsp[-1].type_t)->dataType, (yyvsp[-1].type_t)->dataWide, false, false, (yyvsp[-2].id_t));
+	}
+#line 1527 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 172 "parser.y" /* yacc.c:1646  */
+    {
+		(yyval.field_t) = new MyCol(0, 4, true, true, (yyvsp[-1].id_t), "", true);
+	}
+#line 1535 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 177 "parser.y" /* yacc.c:1646  */
+    {
+		(yyval.type_t) = new MyType(0, (yyvsp[-1].num_t));
+	}
+#line 1543 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 28:
+#line 182 "parser.y" /* yacc.c:1646  */
+    {
+		(yyval.type_t) = new MyType(2, (yyvsp[-1].num_t));
+	}
+#line 1551 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 218 "parser.y" /* yacc.c:1646  */
+    {(yyval.id_t)=(yyvsp[0].id_t);}
+#line 1557 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 220 "parser.y" /* yacc.c:1646  */
+    {(yyval.id_t)=(yyvsp[0].id_t);}
+#line 1563 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 222 "parser.y" /* yacc.c:1646  */
+    {(yyval.id_t)=(yyvsp[0].id_t);}
+#line 1569 "parser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 224 "parser.y" /* yacc.c:1646  */
+    {(yyval.id_t)=(yyvsp[-1].id_t);}
+#line 1575 "parser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1488 "parser.tab.c" /* yacc.c:1646  */
+#line 1579 "parser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1712,5 +1803,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 230 "parser.y" /* yacc.c:1906  */
+#line 226 "parser.y" /* yacc.c:1906  */
 

@@ -39,6 +39,15 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 29 "parser.y" /* yacc.c:1909  */
+
+#include "../recmanage/TableCols.h"
+#include "../recmanage/MyCol.h"
+#include "../recmanage/MyData.h"
+#include "../query/MyCommands.h"
+
+#line 51 "tokens.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -58,12 +67,33 @@ extern int yydebug;
     T_NOT_NULL = 268,
     T_PRIMARY_KEY = 269,
     T_DESC = 270,
-    T_INT = 271,
-    T_VARCHAR = 272,
-    T_COLON = 273,
-    T_COMMA = 274,
-    T_LEFT_BRACKET = 275,
-    T_RIGHT_BRACKET = 276
+    T_IS = 271,
+    T_AND = 272,
+    T_INT = 273,
+    T_VARCHAR = 274,
+    T_INDEX = 275,
+    T_INSERT = 276,
+    T_INTO = 277,
+    T_VALUES = 278,
+    T_DELETE = 279,
+    T_FROM = 280,
+    T_WHERE = 281,
+    T_UPDATE = 282,
+    T_SET = 283,
+    T_SELECT = 284,
+    T_NULL = 285,
+    T_EQUAL = 286,
+    T_NOT_EQUAL = 287,
+    T_NO_MORE_THAN = 288,
+    T_NO_LESS_THAN = 289,
+    T_MORE_THAN = 290,
+    T_LESS_THAN = 291,
+    T_COLON = 292,
+    T_COMMA = 293,
+    T_LEFT_BRACKET = 294,
+    T_RIGHT_BRACKET = 295,
+    T_QUOTATION = 296,
+    T_DOT = 297
   };
 #endif
 
@@ -72,14 +102,17 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 49 "parser.y" /* yacc.c:1909  */
+#line 35 "parser.y" /* yacc.c:1909  */
 
     char *id_t;
+    TableCols *fieldList_t;
+    MyCol *field_t;
+    MyType *type_t;
     char *string_t;
     int  num_t;
     char char_t;
 
-#line 83 "tokens.h" /* yacc.c:1909  */
+#line 116 "tokens.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

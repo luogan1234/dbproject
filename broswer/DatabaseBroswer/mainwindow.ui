@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>80</width>
-      <height>26</height>
+      <width>151</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -30,15 +30,38 @@
    <widget class="QPushButton" name="openButton">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>170</x>
       <y>10</y>
-      <width>80</width>
-      <height>26</height>
+      <width>151</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
      <string>Open</string>
     </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>1221</width>
+      <height>581</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Tab 2</string>
+     </attribute>
+    </widget>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -47,7 +70,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
   </widget>
   <widget class="QMenuBar" name="menuBar">
