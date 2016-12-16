@@ -82,6 +82,8 @@ public:
     bool createIndex(short colID,char type,bool canNull,bool canDel);
     //删除指定列的索引
     bool dropIndex(short colID);
+    //删除所有索引
+    bool dropAllIndex();
     //更新索引信息
     bool indexInfoUpdate();
     //是否有唯一索引
@@ -90,6 +92,14 @@ public:
     MyIndex* getClusteredIndex();
 
     MyIndex* getIndex(int colID);
+    //通过列名字获取列ID
+    int getColID(std::string colName);
+    //通过列ID获取列名字
+    std::string getColName(int colID);
+    //desc数据表时，获取列的属性，包括"","PRI","UNI","MUL"，参考consts.h
+    int getColType(int colID);
+    //获取列数
+    int getColNum();
 
     int getClusteredID();
     //唯一索引有重复则返回false

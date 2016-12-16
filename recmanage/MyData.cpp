@@ -20,7 +20,7 @@ bool MyData::format(int p, MyCol *myCol, MyValue &v)
     return false;
 }
 
-bool MyData::format(std::string word, MyCol *myCol, MyValue &v)
+bool MyData::format(std::string word, MyCol *myCol, MyValue &v,bool isNull)
 {
     if (myCol==0)
         return false;
@@ -28,7 +28,7 @@ bool MyData::format(std::string word, MyCol *myCol, MyValue &v)
     {
         StaticMethod::addBlank(word,myCol->len);
         v.type=TYPE_CHAR;
-        v.isNull=false;
+        v.isNull=isNull;
         v.dataLen=myCol->len;
         v.res=new char[v.dataLen];
         memmove(v.res,(char*)word.c_str(),v.dataLen);
@@ -37,7 +37,7 @@ bool MyData::format(std::string word, MyCol *myCol, MyValue &v)
     if (myCol->type==TYPE_VARCHAR)
     {
         v.type=TYPE_VARCHAR;
-        v.isNull=false;
+        v.isNull=isNull;
         v.dataLen=word.size();
         if (v.dataLen>myCol->len)
             v.dataLen=myCol->len;
@@ -114,14 +114,18 @@ bool MyData::setValue(int num,int offset,MyCol* myCol,MyValue &v)
             else
                 d[0]='0';
             d+=1;++pos;
-            char* tmp=new char[1000],*dd=d;
+            int l=pos;
             int delta=v.dataLen;
+            char *dd=d;
             while (dd[0]!=StaticMethod::p3)
                 dd+=1,++pos,--delta;
-            memcpy(tmp,dd,len-pos);
-            memcpy(d,v.res,v.dataLen);
-            memcpy(d+v.dataLen,tmp,len-pos);
+            char* tmp=new char[len+delta];
+            memmove(tmp,data,l);
+            memmove(tmp+l,v.res,v.dataLen);
+            memmove(tmp+l+v.dataLen,data+pos,len-pos);
             len+=delta;
+            delete data;
+            data=tmp;
             break;
         }
         case TYPE_INT:
@@ -129,7 +133,7 @@ bool MyData::setValue(int num,int offset,MyCol* myCol,MyValue &v)
                 d[0]='1';
             else
                 d[0]='0';
-            memcpy(d+1,v.res,4);
+            memmove(d+1,v.res,4);
             break;
         case TYPE_CHAR:
             if (v.dataLen!=myCol->len)
@@ -138,7 +142,7 @@ bool MyData::setValue(int num,int offset,MyCol* myCol,MyValue &v)
                 d[0]='1';
             else
                 d[0]='0';
-            memcpy(d+1,v.res,myCol->len);
+            memmove(d+1,v.res,myCol->len);
             break;
     }
     return true;

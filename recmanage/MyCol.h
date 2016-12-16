@@ -35,5 +35,7 @@ public:
 
     bool getFromString(std::string rec);
 
+    bool isInWordList(std::string w);
+
 };
 #endif //DBPROJECT_MYCOL_H

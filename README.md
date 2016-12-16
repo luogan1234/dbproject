@@ -27,3 +27,106 @@ UpdateDataSafe函数会把满足条件的数据先都拿出来，改好再一条
 （我在没唯一索引时会直接调用UpdateData，速度快点）
 
 isUnique函数只判断非簇集唯一索引，簇集索引在插入时会去重
+
+
+
+
+以下是操作的建议调用函数：
+CREATE DATABASE orderDB;
+MyFileIO::createDB
+与已有数据库重名返回false，成功创建返回true
+
+DROP DATABASE orderDB;
+MyFileIO::dropDB()
+有该数据库并成功删除返回true，否则返回false
+
+SHOW DATABASES;
+MyFileIO::showDB()
+返回true，同时修改传入的vector<string>保存所有数据库名称
+
+USE orderDB;
+MyFileIO::useDB()
+有该数据库并成功切换返回true，否则返回false
+
+SHOW TABLES;
+MyFileIO::getTables()
+返回true，同时修改传入的vector<string>保存当前数据库的所有表
+
+CREATE TABLE customer(
+id int(10) NOT NULL,
+name char(25) NOT NULL,
+gender char(1) NOT NULL,
+PRIMARY KEY(id)
+);
+新建若干MyCol，看MyCol的构造函数
+比如第一个id列(TYPE_INT, 10, true, false, "id")
+新建TableCols，调用若干addCol()，调用setOrder()
+MyFileIO::createTable()
+与已有数据表重复返回false，否则返回true
+
+
+DROP TABLE customer;
+MyFileIO::dropTable()
+有该数据表并成功删除返回true，否则返回false
+同时会删除相关的所有索引
+
+DESC customer;
+MyTable::getColNum()
+MyTable::getColType()返回值形如COL_NULL之类的
+MyTable::getColName()
+
+INSERT INTO customer VALUES (300001, ‘CHAD CABELLO’, ‘F’);
+参考tests.cpp中的例子
+先tc=MyTable.cols
+创建一个MyData对象myData，用tc作为构造函数参数
+每次获取一列的num,offset和myCol
+调用MyData::format()构造value
+myData.setValue(num,offset,myCol,value);
+调用MyTable::insertData()
+批量插入基于没有唯一索引的条件，否则要先去重或一条条插入
+
+
+INSERT INTO orders VALUES (315000,200001,’eight’);
+同上
+
+DELETE FROM publisher WHERE state=’CA’;
+如果能利用索引，则先用MyIndex::findData()找到可能的数据页和项（RID）位置
+对于RID集合做逻辑运算
+建立Constraints，用于判定一个MyData是否符合要求
+调用MyTable::deleteData()二选一
+
+UPDATE book SET title=’Nine Times Nine’ WHERE authors=’Anthony Boucher’;
+如果能利用索引，则先用MyIndex::findData()找到可能的数据页和项（RID）位置
+对于RID集合做逻辑运算
+建立Constraints、Updates用于更新一个MyData（可以存一系列colID和目标value，用setValue更新）
+调用MyTable::updateDataSafe()二选一
+
+
+SELECT * FROM publisher WHERE nation=’CA’;
+利用索引
+建立Constraints
+调用MyTable::searchData()或MyTable::getData()
+
+SELECT title FROM book WHERE authors is null;
+同上
+
+SELECT book.title,orders.quantity FROM book,orders WHERE book.id=orders.book_id AND orders.quantity>8;
+同上
+
+CREATE INDEX customer(name);
+MyTable::getColID()
+返回-1说明没有
+MyTable::createIndex()
+
+DROP INDEX customer(name);
+MyTable::getColID()
+MyTable::dropIndex()
+
+CREATE TABLE customer (
+id int(10) NOT NULL,
+name char(25) NOT NULL,
+gender char(1) NOT NULL,
+CHECK (gender in(‘F’,’M’)),
+PRIMARY KEY (id)
+);
+使用MyCol::addwordList()增加限制，使用MyCol::isInWordList()检查是否属于候选词

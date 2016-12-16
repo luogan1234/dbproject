@@ -24,4 +24,10 @@
 #define PAGE_NORMAL 0
 #define PAGE_LEAF 1
 
+#define COL_ERROR -1
+#define COL_NULL 0
+#define COL_PRI 1
+#define COL_UNI 2
+#define COL_MUL 3
+
 #endif //DBPROJECT_CONSTS_H

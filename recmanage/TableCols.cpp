@@ -64,7 +64,7 @@ void TableCols::setOrder()
 
 MyCol* TableCols::getByName(std::string _name,int &_num,int &_offset)      //num代表第几个varchar，offset代表数据起始位置偏移量
 {
-    for (size_t i=0;i<n;++i)
+    for (int i=0;i<n;++i)
     {
         if (cols[order[i]].name==_name)
         {
@@ -77,7 +77,37 @@ MyCol* TableCols::getByName(std::string _name,int &_num,int &_offset)      //num
     return 0;
 }
 
-void TableCols::getByOrder(int p, int &_num,int &_offset)
+MyCol* TableCols::getByCol(int colID,int &_num,int &_offset)
 {
-    _num=num[p];_offset=offset[p];
+    if (colID<n)
+    {
+        for (int i=0;i<n;++i)
+            if (order[i]==colID)
+            {
+                _num=num[i];
+                _offset=offset[i];
+            }
+        return &cols[colID];
+    }
+    _num=_offset=-1;
+    return 0;
+}
+
+MyCol* TableCols::getByOrder(int p, int &_num,int &_offset)
+{
+    if (p<n)
+    {
+        _num=num[p];_offset=offset[p];
+        return &cols[order[p]];
+    }
+    _num=_offset=-1;
+    return 0;
+}
+
+int TableCols::getColID(std::string _name)
+{
+    for (int i=0;i<n;++i)
+        if (cols[order[i]].name==_name)
+            return i;
+    return -1;
 }
