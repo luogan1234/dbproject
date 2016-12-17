@@ -10,33 +10,40 @@
 
 class Constraints {
 private:
-    int ranp,tot;
+    // int ranp,tot;
+    int kind;
+    //0 select *
 public:
-    Constraints()
+    Constraints(int k = 0)
     {
-        ranp=1;tot=0;
+        kind = k;
+        // ranp=1;tot=0;
     }
 
-    Constraints(int p)
-    {
-        ranp=p;tot=0;
-    }
+    // Constraints(int p)
+    // {
+    //     ranp=p;tot=0;
+    // }
     //返回true表示满足条件
     bool checkData(MyData *data)
     {
-        if (ranp==0)
-        {
-            int v=*(int*)(data->data+1);
-            if (v>=99&&v<=990)
+        switch (kind){
+            case 0:
                 return true;
-            else
-                return false;
         }
-        ++tot;
-        if (tot%ranp==0)
-            return true;
-        else
-            return false;
+        // if (ranp==0)
+        // {
+        //     int v=*(int*)(data->data+1);
+        //     if (v>=99&&v<=990)
+        //         return true;
+        //     else
+        //         return false;
+        // }
+        // ++tot;
+        // if (tot%ranp==0)
+        //     return true;
+        // else
+        //     return false;
     }
 };
 

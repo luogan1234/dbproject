@@ -21,7 +21,7 @@ public:
     {
         type=t;len=l;isPrimary=i;canBeNull=c;name=n;
         wordList.clear();outerTableName=o;
-    //-----add by lmq------
+	    //-----add by lmq------
         setPrimary = sP;
     }
 
@@ -38,6 +38,8 @@ public:
     std::string toString();
 
     bool getFromString(std::string rec);
+
+    bool isInWordList(std::string w);
 
 };
 #endif //DBPROJECT_MYCOL_H

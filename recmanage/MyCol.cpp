@@ -2,6 +2,7 @@
 // Created by luogan on 16-10-15.
 //
 
+#include <cstring>
 #include "MyCol.h"
 #include "../StaticMethod.h"
 
@@ -57,4 +58,15 @@ bool MyCol::getFromString(std::string rec)
         }
     }
     return true;
+}
+
+bool MyCol::isInWordList(std::string w)
+{
+    int m=wordList.size(),i;
+    if (m==0)
+        return true;
+    for (i=0;i<m;++i)
+        if (wordList[i]==w)
+            return true;
+    return false;
 }

@@ -40,14 +40,15 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 29 "parser.y" /* yacc.c:1909  */
+#line 30 "parser.y" /* yacc.c:1909  */
 
+#include <vector>
 #include "../recmanage/TableCols.h"
 #include "../recmanage/MyCol.h"
 #include "../recmanage/MyData.h"
 #include "../query/MyCommands.h"
 
-#line 51 "tokens.h" /* yacc.c:1909  */
+#line 52 "tokens.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -102,17 +103,21 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 35 "parser.y" /* yacc.c:1909  */
+#line 37 "parser.y" /* yacc.c:1909  */
 
     char *id_t;
     TableCols *fieldList_t;
     MyCol *field_t;
     MyType *type_t;
+    vector<MyData*> *valueLists_t;
+    MyData *valueList_t;
+    AllValue *value_t;
+    vector<string> *tableList_t;
     char *string_t;
     int  num_t;
     char char_t;
 
-#line 116 "tokens.h" /* yacc.c:1909  */
+#line 121 "tokens.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

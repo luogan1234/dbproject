@@ -55,6 +55,6 @@ NUMBER              [0-9][0-9]*
 
 {NUMBER}			{ yylval.num_t = atoi(yytext); return T_VALUE_INT; }
 {ID} 				{ yylval.id_t = strdup(yytext); return T_ID; }
-['\n']+				{ printf("new line\n"); }
+['\n']+				{ }
 
 %%

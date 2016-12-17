@@ -1041,7 +1041,7 @@ case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
 #line 58 "lexer.l"
-{ printf("new line\n"); }
+{ }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP

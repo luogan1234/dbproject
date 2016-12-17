@@ -1,3 +1,4 @@
+rm -rf data;
 cmake .;
 cd parser;
 flex lexer.l;

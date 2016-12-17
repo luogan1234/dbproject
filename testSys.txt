@@ -17,7 +17,10 @@ name char(25) NOT NULL,
 gender char(1) NOT NULL,
 PRIMARY KEY(id)
 );
-INSERT INTO customer VALUES (2222, 'attrValue2', 'F');
+SELECT FROM customer;
+INSERT INTO customer VALUES (2222, 'attrValue2', 'F'), (1111, 'adsdrdslse2', 'M');
+INSERT INTO customer VALUES (111, 'adsdrdsldse2', 'M');
+SELECT FROM customer, customer1;
 SHOW TABLES;
 DESC customer;
 SHOW TABLES;
