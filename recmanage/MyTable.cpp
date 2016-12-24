@@ -76,6 +76,8 @@ bool MyTable::hasUniqueIndex()
 
 bool MyTable::isUnique(MyData *data)
 {
+    if (!cols.checkData(data))
+        return false;
     int i,num,offset,colID;
     MyValue value;
     vector<pair<int,int>> res;
@@ -114,7 +116,7 @@ bool MyTable::isUnique(vector<MyData*> &datas)
             {
                 datas[j]->getValue(num,offset,&cols.cols[colID],value);
                 indexes[i]->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
-                if (res.size()>0)
+                if (res.size()>0||!cols.checkData(datas[j]))
                 {
                     p=false;
                     res.clear();
@@ -343,6 +345,14 @@ int MyTable::getClusteredID()
     return -1;
 }
 
+bool MyTable::getAllForeignKey(vector<pair<int,string> > &res)
+{
+    res.clear();
+    if (!cols.hasPrimaryKey())
+        return false;
+    myFileIO->getAllForeignKey(name,res);
+    return true;
+}
 
 void MyTable::init()
 {

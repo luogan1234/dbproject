@@ -216,3 +216,16 @@ MyIndex* MyFileIO::getIndex(string name,short colID,MyTable* myTable)
     MyIndex *mi=new MyIndex(bm,name,colID,fileID,myTable);
     return mi;
 }
+
+void MyFileIO::getAllForeignKey(string name,vector<pair<int,string> > &res)
+{
+    MyTable* myTable;
+    vector<int> ress;
+    for (int i=0;i<dbNames.size();++i)
+    {
+        myTable=getTable(dbNames[i]);
+        myTable->cols.getForeignKey(name,ress);
+        for (int j=0;j<ress.size();++j)
+            res.push_back(make_pair(ress[j],dbNames[i]));
+    }
+}

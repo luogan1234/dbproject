@@ -64,6 +64,8 @@ public:
     bool dropIndex(std::string name,short colID);
     //根据表名和索引列获取索引
     MyIndex* getIndex(std::string name,short colID,MyTable* myTable);
+    //根据表名获取外键
+    void getAllForeignKey(std::string name,std::vector<std::pair<int,std::string> > &res);
 };
 
 

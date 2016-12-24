@@ -60,9 +60,12 @@ PRIMARY KEY(id)
 );
 新建若干MyCol，看MyCol的构造函数
 比如第一个id列(TYPE_INT, 10, true, false, "id")
-新建TableCols，调用若干addCol()，调用setOrder()
+新建TableCols，调用若干addCol()，最后调用setOrder()
 MyFileIO::createTable()
 与已有数据表重复返回false，否则返回true
+一些列如果有限制需要MyCol::addWordList()
+外键需要在构造时传入
+PRIMARY KEY这个需要建立不可以删除的非空簇集索引
 
 
 DROP TABLE customer;
@@ -84,6 +87,9 @@ INSERT INTO customer VALUES (300001, ‘CHAD CABELLO’, ‘F’);
 myData.setValue(num,offset,myCol,value);
 调用MyTable::insertData()
 批量插入基于没有唯一索引的条件，否则要先去重或一条条插入
+已经处理了部分列限制词选择的情况，除了外键之外一条条插入即可
+外键必须额外处理
+TableCols::getAllForeignKey()获取当前数据表的所有外键，先判断好外键情况再插入
 
 
 INSERT INTO orders VALUES (315000,200001,’eight’);
@@ -93,13 +99,15 @@ DELETE FROM publisher WHERE state=’CA’;
 如果能利用索引，则先用MyIndex::findData()找到可能的数据页和项（RID）位置
 对于RID集合做逻辑运算
 建立Constraints，用于判定一个MyData是否符合要求
-调用MyTable::deleteData()二选一
+调用MyTable::deleteData()选择直接删或者删指定的数据
+MyTable::getAllForeignKey()获取指向当前数据表的所有外键，把他们中相关的数据也要删除（这里要递归处理，因此底层不直接做）
 
 UPDATE book SET title=’Nine Times Nine’ WHERE authors=’Anthony Boucher’;
 如果能利用索引，则先用MyIndex::findData()找到可能的数据页和项（RID）位置
 对于RID集合做逻辑运算
 建立Constraints、Updates用于更新一个MyData（可以存一系列colID和目标value，用setValue更新）
 调用MyTable::updateDataSafe()二选一
+使用的前提是数据表没有外键且没有外键指向它，否则建议先find再delete，删除相关外键数据，把find到的数据更新好再判断外键并插入
 
 
 SELECT * FROM publisher WHERE nation=’CA’;
@@ -115,7 +123,7 @@ SELECT book.title,orders.quantity FROM book,orders WHERE book.id=orders.book_id 
 
 CREATE INDEX customer(name);
 MyTable::getColID()
-返回-1说明没有
+返回-1说明没有索引才能创建索引
 MyTable::createIndex()
 
 DROP INDEX customer(name);

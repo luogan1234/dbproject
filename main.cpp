@@ -15,6 +15,8 @@ int main() {
     MyCol m2(TYPE_VARCHAR, 50, false, false, "teset2");
     MyCol m3(TYPE_VARCHAR, 5, false, false, "teset3");
     MyCol m4(TYPE_CHAR, 11, false, false, "teset4");
+    m3.addWordList("test");
+    m3.addWordList("aaa");
     TableCols tc;
     tc.addCol(m1);
     tc.addCol(m2);
@@ -38,7 +40,7 @@ int main() {
                 MyData::format("abicode",myCol,value);
                 break;
             case 2:
-                MyData::format("",myCol,value,true);
+                MyData::format("aaa",myCol,value);
                 break;
             case 3:
                 MyData::format("aabbcc",myCol,value);
@@ -51,7 +53,7 @@ int main() {
     myCol=tc.getByCol(0,num,offset);
     myData->getValue(0,0,myCol,value);
     value.print();
-
+    printf("%d\n",tc.checkData(myData));
 /*    myData.print();
     int num, offset;
     MyCol *tar = tc.getByName("teset3", num, offset);
