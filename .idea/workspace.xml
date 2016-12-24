@@ -12,19 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bedb8421-5f34-4cac-9ff0-32b2d2304772" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.cpp" afterPath="$PROJECT_DIR$/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyCol.cpp" afterPath="$PROJECT_DIR$/recmanage/MyCol.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyCol.h" afterPath="$PROJECT_DIR$/recmanage/MyCol.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyFileIO.cpp" afterPath="$PROJECT_DIR$/recmanage/MyFileIO.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyFileIO.h" afterPath="$PROJECT_DIR$/recmanage/MyFileIO.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyTable.cpp" afterPath="$PROJECT_DIR$/recmanage/MyTable.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyTable.h" afterPath="$PROJECT_DIR$/recmanage/MyTable.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyValue.cpp" afterPath="$PROJECT_DIR$/recmanage/MyValue.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/MyValue.h" afterPath="$PROJECT_DIR$/recmanage/MyValue.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/TableCols.cpp" afterPath="$PROJECT_DIR$/recmanage/TableCols.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/recmanage/TableCols.h" afterPath="$PROJECT_DIR$/recmanage/TableCols.h" />
     </list>
     <ignored path="dbproject.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,7 +35,7 @@
       <file leaf-file-name="MyValue.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/MyValue.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3381">
+            <state relative-caret-position="322">
               <caret line="14" column="15" selection-start-line="14" selection-start-column="15" selection-end-line="14" selection-end-column="15" />
               <folding />
             </state>
@@ -57,7 +45,7 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="276">
+            <state relative-caret-position="966">
               <caret line="42" column="35" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
               <folding>
                 <element signature="e#3547#3960#0" expanded="false" />
@@ -69,7 +57,7 @@
       <file leaf-file-name="MyCol.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/MyCol.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="691">
+            <state relative-caret-position="943">
               <caret line="41" column="4" selection-start-line="41" selection-start-column="4" selection-end-line="41" selection-end-column="38" />
               <folding>
                 <element signature="e#93#110#0" expanded="true" />
@@ -81,8 +69,8 @@
       <file leaf-file-name="MyTable.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/MyTable.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-22">
-              <caret line="96" column="16" selection-start-line="96" selection-start-column="16" selection-end-line="96" selection-end-column="16" />
+            <state relative-caret-position="336">
+              <caret line="93" column="15" selection-start-line="93" selection-start-column="9" selection-end-line="93" selection-end-column="15" />
               <folding />
             </state>
           </provider>
@@ -91,8 +79,8 @@
       <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="461">
-              <caret line="139" column="59" selection-start-line="139" selection-start-column="59" selection-end-line="139" selection-end-column="59" />
+            <state relative-caret-position="791">
+              <caret line="143" column="45" selection-start-line="143" selection-start-column="45" selection-end-line="143" selection-end-column="45" />
               <folding />
             </state>
           </provider>
@@ -101,7 +89,7 @@
       <file leaf-file-name="MyFileIO.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/MyFileIO.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1012">
+            <state relative-caret-position="5221">
               <caret line="227" column="39" selection-start-line="227" selection-start-column="39" selection-end-line="227" selection-end-column="39" />
               <folding />
             </state>
@@ -111,7 +99,7 @@
       <file leaf-file-name="MyData.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/MyData.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="598">
+            <state relative-caret-position="828">
               <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
               <folding />
             </state>
@@ -121,7 +109,7 @@
       <file leaf-file-name="TableCols.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/TableCols.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="392">
+            <state relative-caret-position="644">
               <caret line="48" column="25" selection-start-line="48" selection-start-column="9" selection-end-line="48" selection-end-column="25" />
               <folding>
                 <element signature="e#101#119#0" expanded="true" />
@@ -133,7 +121,7 @@
       <file leaf-file-name="MyValue.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/MyValue.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="624">
+            <state relative-caret-position="782">
               <caret line="34" column="4" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="27" />
               <folding>
                 <element signature="e#99#116#0" expanded="true" />
@@ -145,7 +133,7 @@
       <file leaf-file-name="TableCols.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/recmanage/TableCols.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2162">
+            <state relative-caret-position="138">
               <caret line="6" column="19" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
               <folding>
                 <element signature="e#41#63#0" expanded="true" />
@@ -565,11 +553,12 @@
       <workItem from="1481627455482" duration="2778000" />
       <workItem from="1481889461742" duration="11260000" />
       <workItem from="1482545984150" duration="5237000" />
+      <workItem from="1482551296954" duration="177000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="237543000" />
+    <option name="totallyTimeSpent" value="237720000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
@@ -577,22 +566,22 @@
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32923076" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32820514" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32923076" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32820514" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32923076" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -702,7 +691,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="115">
           <caret line="5" column="34" selection-start-line="5" selection-start-column="34" selection-end-line="5" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -755,7 +743,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="163">
           <caret line="16" column="27" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -763,7 +750,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="322">
           <caret line="316" column="0" selection-start-line="316" selection-start-column="0" selection-end-line="316" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -802,7 +788,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -810,7 +795,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1380">
           <caret line="89" column="0" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -818,7 +802,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="805">
           <caret line="151" column="27" selection-start-line="151" selection-start-column="27" selection-end-line="151" selection-end-column="27" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -880,7 +863,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/recmanage/MyFileIO.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1012">
+        <state relative-caret-position="5221">
           <caret line="227" column="39" selection-start-line="227" selection-start-column="39" selection-end-line="227" selection-end-column="39" />
           <folding />
         </state>
@@ -888,7 +871,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/recmanage/MyValue.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="624">
+        <state relative-caret-position="782">
           <caret line="34" column="4" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="27" />
           <folding>
             <element signature="e#99#116#0" expanded="true" />
@@ -898,7 +881,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/recmanage/MyValue.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3381">
+        <state relative-caret-position="322">
           <caret line="14" column="15" selection-start-line="14" selection-start-column="15" selection-end-line="14" selection-end-column="15" />
           <folding />
         </state>
@@ -906,7 +889,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/recmanage/MyData.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="598">
+        <state relative-caret-position="828">
           <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
           <folding />
         </state>
@@ -914,7 +897,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/recmanage/TableCols.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2162">
+        <state relative-caret-position="138">
           <caret line="6" column="19" selection-start-line="6" selection-start-column="19" selection-end-line="6" selection-end-column="19" />
           <folding>
             <element signature="e#41#63#0" expanded="true" />
@@ -922,27 +905,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/recmanage/TableCols.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="392">
-          <caret line="48" column="25" selection-start-line="48" selection-start-column="9" selection-end-line="48" selection-end-column="25" />
-          <folding>
-            <element signature="e#101#119#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/recmanage/MyTable.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-22">
-          <caret line="96" column="16" selection-start-line="96" selection-start-column="16" selection-end-line="96" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/recmanage/MyCol.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="691">
+        <state relative-caret-position="943">
           <caret line="41" column="4" selection-start-line="41" selection-start-column="4" selection-end-line="41" selection-end-column="38" />
           <folding>
             <element signature="e#93#110#0" expanded="true" />
@@ -952,7 +917,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
+        <state relative-caret-position="966">
           <caret line="42" column="35" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
           <folding>
             <element signature="e#3547#3960#0" expanded="false" />
@@ -960,10 +925,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/recmanage/TableCols.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="48" column="25" selection-start-line="48" selection-start-column="9" selection-end-line="48" selection-end-column="25" />
+          <folding>
+            <element signature="e#101#119#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/recmanage/MyTable.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="93" column="15" selection-start-line="93" selection-start-column="9" selection-end-line="93" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="139" column="59" selection-start-line="139" selection-start-column="59" selection-end-line="139" selection-end-column="59" />
+        <state relative-caret-position="791">
+          <caret line="143" column="45" selection-start-line="143" selection-start-column="45" selection-end-line="143" selection-end-column="45" />
           <folding />
         </state>
       </provider>

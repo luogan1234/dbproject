@@ -138,3 +138,7 @@ CHECK (gender in(‘F’,’M’)),
 PRIMARY KEY (id)
 );
 使用MyCol::addwordList()增加限制，使用MyCol::isInWordList()检查是否属于候选词
+
+外键相关函数补充：
+TableCols::getAllForeignKey()这个是返回所有外键
+MyTable::getAllForeignKey()这个是返回所有指向该数据表主键的外键
