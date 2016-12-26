@@ -5,6 +5,9 @@
 #include "TableCols.h"
 #include "../StaticMethod.h"
 #include "MyData.h"
+#include "MyTable.h"
+#include "MyFileIO.h"
+
 using namespace std;
 
 string TableCols::toString()
@@ -122,6 +125,14 @@ int TableCols::hasPrimaryKey()
     return -1;
 }
 
+bool TableCols::hasForeignKey()
+{
+    for (int i=0;i<n;++i)
+        if (cols[i].outerTableName!="")
+            return true;
+    return false;
+}
+
 void TableCols::getAllForeignKey(vector<pair<int,string> > &res)
 {
     res.clear();
@@ -138,12 +149,14 @@ void TableCols::getForeignKey(string name,vector<int> &res)
             res.push_back(i);
 }
 
-bool TableCols::checkData(MyData* data)
+bool TableCols::checkData(MyData* data,MyFileIO* myFileIO)
 {
     int num,offset;
     MyCol* myCol;
     MyValue value;
+    std::vector<std::pair<int,int> > res;
     for (int i=0;i<n;++i)
+    {
         if (cols[i].wordList.size()>0)
         {
             myCol=getByCol(i,num,offset);
@@ -151,5 +164,36 @@ bool TableCols::checkData(MyData* data)
             if (!myCol->isInWordList(value))
                 return false;
         }
+        if (cols[i].outerTableName!="")
+        {
+            myCol=getByCol(i,num,offset);
+            data->getValue(num,offset,myCol,value);
+            MyTable *table=myFileIO->getTable(cols[i].outerTableName);
+            if (table&&table->cols.hasPrimaryKey()!=-1)
+            {
+                if (value.type!=TYPE_INT)
+                {
+                    delete table;
+                    return false;
+                }
+                MyIndex* myIndex=table->getClusteredIndex();
+                if (!myIndex)
+                {
+                    delete table;
+                    return false;
+                }
+                myIndex->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
+                if (res.size()==0)
+                {
+                    delete table;
+                    delete myIndex;
+                    return false;
+                }
+                delete myIndex;
+            }
+            if (table)
+                delete table;
+        }
+    }
     return true;
 }

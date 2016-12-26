@@ -53,7 +53,6 @@ int main() {
     myCol=tc.getByCol(0,num,offset);
     myData->getValue(0,0,myCol,value);
     value.print();
-    printf("%d\n",tc.checkData(myData));
 /*    myData.print();
     int num, offset;
     MyCol *tar = tc.getByName("teset3", num, offset);

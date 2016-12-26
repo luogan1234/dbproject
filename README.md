@@ -87,8 +87,7 @@ INSERT INTO customer VALUES (300001, ‘CHAD CABELLO’, ‘F’);
 myData.setValue(num,offset,myCol,value);
 调用MyTable::insertData()
 批量插入基于没有唯一索引的条件，否则要先去重或一条条插入
-已经处理了部分列限制词选择的情况，除了外键之外一条条插入即可
-外键必须额外处理
+已经处理了部分列限制词选择的情况，也会做外键插入的情况
 TableCols::getAllForeignKey()获取当前数据表的所有外键，先判断好外键情况再插入
 
 
@@ -100,7 +99,7 @@ DELETE FROM publisher WHERE state=’CA’;
 对于RID集合做逻辑运算
 建立Constraints，用于判定一个MyData是否符合要求
 调用MyTable::deleteData()选择直接删或者删指定的数据
-MyTable::getAllForeignKey()获取指向当前数据表的所有外键，把他们中相关的数据也要删除（这里要递归处理，因此底层不直接做）
+MyTable::getAllForeignKey()获取指向当前数据表的所有外键，把他们中相关的数据也要删除（这里要递归处理，因此底层不直接做，暂时不考虑做）
 
 UPDATE book SET title=’Nine Times Nine’ WHERE authors=’Anthony Boucher’;
 如果能利用索引，则先用MyIndex::findData()找到可能的数据页和项（RID）位置
@@ -140,5 +139,6 @@ PRIMARY KEY (id)
 使用MyCol::addwordList()增加限制，使用MyCol::isInWordList()检查是否属于候选词
 
 外键相关函数补充：
+外键由底层支持，仅考虑插入时的情况
 TableCols::getAllForeignKey()这个是返回所有外键
 MyTable::getAllForeignKey()这个是返回所有指向该数据表主键的外键

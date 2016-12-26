@@ -104,9 +104,9 @@ public:
     int getColNum();
 
     int getClusteredID();
-    //唯一索引有重复则返回false，同时处理了部分数据列对于词的限制
+    //唯一索引有重复则返回false，同时处理了部分数据列对于词的限制以及外键
     bool isUnique(MyData*);
-    //唯一索引有重复就去掉重复的，并返回false，同时处理了部分数据列对于词的限制
+    //唯一索引有重复就去掉重复的，并返回false，同时处理了部分数据列对于词的限制以及外键
     bool isUnique(std::vector<MyData*> &datas);
     //通过页号和槽号获得数据
     bool getData(std::vector<std::pair<int,int> > &datas,std::vector<MyData*> &res);
