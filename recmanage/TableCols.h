@@ -37,8 +37,12 @@ public:
     void setOrder();
     //num代表第几个varchar，offset代表数据起始位置偏移量，通过列名查找
     MyCol* getByName(std::string _name,int &_num,int &_offset);
-    //num代表第几个varchar，offset代表数据起始位置偏移量，通过列序号查找
-    void getByOrder(int p,int &_num,int &_offset);
+    //通过列号查找，VARCHAR将统一放在定长数据之后
+    MyCol* getByCol(int colID,int &_num,int &_offset);
+    //通过数据存储的顺序查找
+    MyCol* getByOrder(int p,int &_num,int &_offset);
+    //通过名字查找列ID
+    int getColID(std::string _name);
 
     //返回所有列中是否有主键，如果有返回colID，否则返回-1
      int hasPrimaryKey();

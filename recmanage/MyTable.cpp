@@ -128,6 +128,40 @@ bool MyTable::isUnique(vector<MyData*> &datas)
     return p;
 }
 
+int MyTable::getColID(std::string colName)
+{
+    return cols.getColID(colName);
+}
+
+int MyTable::getColNum()
+{
+    return cols.n;
+}
+
+std::string MyTable::getColName(int colID)
+{
+    if (colID<cols.n)
+        return cols.cols[colID].name;
+    return "";
+}
+
+int MyTable::getColType(int colID)
+{
+    if (colID>=indexingTot)
+        return COL_ERROR;
+    if (cols.cols[colID].isPrimary)
+        return COL_PRI;
+    for (int i=0;i<indexingTot;++i)
+        if (indexingCol[i]==colID)
+        {
+            if (indexingType[i]==INDEX_UNCLUSTERED||indexCanNull[i])
+                return COL_MUL;
+            else
+                return COL_UNI;
+        }
+    return COL_NULL;
+}
+
 bool MyTable::createIndex(short colID, char type,bool canNull,bool canDel)
 {
     for (int i=0;i<indexingTot;++i)
@@ -272,6 +306,13 @@ bool MyTable::dropIndex(short colID)
             return true;
         }
     return false;
+}
+
+bool MyTable::dropAllIndex()
+{
+    for (int i=0;i<indexingTot;++i)
+        myFileIO->dropIndex(name,indexingCol[i]);
+    return true;
 }
 
 MyIndex* MyTable::getClusteredIndex()

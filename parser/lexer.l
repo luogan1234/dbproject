@@ -51,7 +51,6 @@ MY_STRING            '[A-Za-z][A-Za-z0-9|_|\x20|-]*'
 "<"						{ return T_LESS_THAN; }
 ">"						{ return T_MORE_THAN; }
 ";"						{ return T_COLON; }
-"'"						{ return T_QUOTATION; }
 "."						{ return T_DOT; }
 ","						{ return T_COMMA; }
 "("						{ return T_LEFT_BRACKET; }

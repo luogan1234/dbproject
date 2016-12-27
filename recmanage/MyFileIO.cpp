@@ -127,8 +127,11 @@ bool MyFileIO::createTable(string tableName,string tableFormat)
 
 bool MyFileIO::dropTable(string tableName)
 {
-    if (nowDBName=="")
+    MyTable *myTable=getTable(tableName);
+    if (myTable==0)
         return false;
+    myTable->dropAllIndex();
+    delete myTable;
     for (size_t i=0;i<tableNames.size();++i)
         if (tableNames[i]==tableName)
         {
