@@ -40,14 +40,16 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 29 "parser.y" /* yacc.c:1909  */
+#line 32 "parser.y" /* yacc.c:1909  */
 
+#include <vector>
 #include "../recmanage/TableCols.h"
 #include "../recmanage/MyCol.h"
 #include "../recmanage/MyData.h"
 #include "../query/MyCommands.h"
+#include "../query/MyStruct.h"
 
-#line 51 "tokens.h" /* yacc.c:1909  */
+#line 53 "tokens.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -56,44 +58,47 @@ extern int yydebug;
   {
     T_VALUE_INT = 258,
     T_ID = 259,
-    T_CREATE = 260,
-    T_DATABASE = 261,
-    T_DATABASES = 262,
-    T_DROP = 263,
-    T_USE = 264,
-    T_SHOW = 265,
-    T_TABLE = 266,
-    T_TABLES = 267,
-    T_NOT_NULL = 268,
-    T_PRIMARY_KEY = 269,
-    T_DESC = 270,
-    T_IS = 271,
-    T_AND = 272,
-    T_INT = 273,
-    T_VARCHAR = 274,
-    T_INDEX = 275,
-    T_INSERT = 276,
-    T_INTO = 277,
-    T_VALUES = 278,
-    T_DELETE = 279,
-    T_FROM = 280,
-    T_WHERE = 281,
-    T_UPDATE = 282,
-    T_SET = 283,
-    T_SELECT = 284,
-    T_NULL = 285,
-    T_EQUAL = 286,
-    T_NOT_EQUAL = 287,
-    T_NO_MORE_THAN = 288,
-    T_NO_LESS_THAN = 289,
-    T_MORE_THAN = 290,
-    T_LESS_THAN = 291,
-    T_COLON = 292,
-    T_COMMA = 293,
-    T_LEFT_BRACKET = 294,
-    T_RIGHT_BRACKET = 295,
-    T_QUOTATION = 296,
-    T_DOT = 297
+    T_STRING = 260,
+    T_CREATE = 261,
+    T_DATABASE = 262,
+    T_DATABASES = 263,
+    T_DROP = 264,
+    T_USE = 265,
+    T_SHOW = 266,
+    T_TABLE = 267,
+    T_TABLES = 268,
+    T_NOT_NULL = 269,
+    T_PRIMARY_KEY = 270,
+    T_FOREIGN_KEY = 271,
+    T_DESC = 272,
+    T_IS = 273,
+    T_AND = 274,
+    T_INT = 275,
+    T_CHAR = 276,
+    T_VARCHAR = 277,
+    T_INDEX = 278,
+    T_INSERT = 279,
+    T_INTO = 280,
+    T_VALUES = 281,
+    T_DELETE = 282,
+    T_FROM = 283,
+    T_WHERE = 284,
+    T_UPDATE = 285,
+    T_SET = 286,
+    T_SELECT = 287,
+    T_NULL = 288,
+    T_CHECK = 289,
+    T_EQUAL = 290,
+    T_NOT_EQUAL = 291,
+    T_NO_MORE_THAN = 292,
+    T_NO_LESS_THAN = 293,
+    T_MORE_THAN = 294,
+    T_LESS_THAN = 295,
+    T_COLON = 296,
+    T_COMMA = 297,
+    T_LEFT_BRACKET = 298,
+    T_RIGHT_BRACKET = 299,
+    T_DOT = 300
   };
 #endif
 
@@ -102,17 +107,27 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 35 "parser.y" /* yacc.c:1909  */
+#line 40 "parser.y" /* yacc.c:1909  */
 
     char *id_t;
     TableCols *fieldList_t;
     MyCol *field_t;
     MyType *type_t;
+    vector<vector<AllValue*>*> *valueLists_t;
+    vector<AllValue*> *valueList_t;
+    AllValue *value_t;
+    vector<string> *tableList_t;
+    Selector *col_t;
+    vector<Selector*> *selector_t;
+    vector<WhereClause*> *whereClause_t;
+    WhereClause* where_t;
+    Expr *expr_t;
+    vector<SetClause*> *setClause_t;
     char *string_t;
     int  num_t;
     char char_t;
 
-#line 116 "tokens.h" /* yacc.c:1909  */
+#line 131 "tokens.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

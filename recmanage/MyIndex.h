@@ -28,7 +28,7 @@ public:
     int fileID;
     int totalUsed,index,rootPage;
     vector<char*> pages;
-    vector<int> nows,slots,indexs;
+    vector<int> nows,_slots,indexs;
     MyTable* myTable;
     MyValue values[2000];
     MyValue vl,vn,vr;

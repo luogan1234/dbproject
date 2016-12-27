@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+class MyData;
 class TableCols
 {
 public:
@@ -39,17 +40,28 @@ public:
     //num代表第几个varchar，offset代表数据起始位置偏移量，通过列序号查找
     void getByOrder(int p,int &_num,int &_offset);
 
+    //返回所有列中是否有主键，如果有返回colID，否则返回-1
+     int hasPrimaryKey();
+     //返回所有外键信息，格式是外键所处列和相应外键指向的数据表名称
+     void getAllForeignKey(std::vector<std::pair<int,std::string> > &res);
+     //返回指向指定数据表的外键
+     void getForeignKey(std::string name,std::vector<int> &res);
+     //检查数据在所有列都符合给定词限制
+     bool checkData(MyData* data);
+
     //-----add by lmq------
-    void setPrimary(std::string name)
+    bool setPrimary(std::string name)
     {
         int len = cols.size();
         for (int i = 0; i < len; ++i)
         {
-            if(name == cols[i].name){
+            if(name == cols[i].name && cols[i].type == TYPE_INT){
+            	//primary key must be int type
                 cols[i].isPrimary = true;
-                break;
+                return true;
             }
         }
+        return false;
     }
 };
 

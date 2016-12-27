@@ -6,6 +6,7 @@
 #define DBPROJECT_MYVALUE_H
 
 
+#include <string>
 #include "../consts.h"
 
 class MyValue {
@@ -30,6 +31,8 @@ public:
     void print();
 
     void get(int valueType,int valueLen,bool canNull,char *pos,int len);
+
+    std::string toString();
 };
 
 
