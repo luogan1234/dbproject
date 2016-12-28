@@ -16,6 +16,7 @@ MY_STRING           \'(\\.|[^\n'\\])*\'
   // '[A-Za-z0-9|_|\x20|\t|\-|\(|\)|\[|\]|\,|\.|\?|\:|\&|\;|\#|\/|\!|\+|\=|\*|\@|\$|\%|\^|\~|\`|\>|\<|\{|\}|(\\\')|(\\\")]+'
 
 %%
+"EXIT"					{ return T_EXIT;}
 "CREATE" 				{ return T_CREATE; }
 "DATABASE" 				{ return T_DATABASE; }
 "DATABASES" 			{ return T_DATABASES; }
