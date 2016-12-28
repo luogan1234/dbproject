@@ -72,7 +72,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "DB Browser", Q_NULLPTR));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "DB Broswer", Q_NULLPTR));
         openButton->setText(QApplication::translate("MainWindow", "Open", Q_NULLPTR));
         tabWidget->setTabText(tabWidget->indexOf(tab1), QApplication::translate("MainWindow", "Tab 1", Q_NULLPTR));
         tabWidget->setTabText(tabWidget->indexOf(tab2), QApplication::translate("MainWindow", "Tab 2", Q_NULLPTR));

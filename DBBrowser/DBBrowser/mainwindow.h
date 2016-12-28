@@ -13,6 +13,7 @@
 #include <QInputDialog>
 #include <iostream>
 #include <sstream>
+#include <QMessageBox>
 #include "../../query/MyCommands.h"
 
 namespace Ui {
@@ -34,8 +35,11 @@ private slots:
 private:
     Ui::MainWindow *ui;
     // make them member variable
-    QPushButton* createButton;
     QPushButton* openButton;
+    QTableWidget* structureTable;
+
+    QComboBox* comboBox;
+    QTableWidget* mainTable;
 
     QTabWidget* tabWidget;
     MyCommands myCommands;

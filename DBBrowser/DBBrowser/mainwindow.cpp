@@ -25,13 +25,7 @@ MainWindow::MainWindow(QWidget *parent):
     QVBoxLayout* vBoxLayout1 = new QVBoxLayout;
     QHBoxLayout* hBoxLayout1 = new QHBoxLayout;
     hBoxLayout1->setAlignment(Qt::AlignLeft);
-    QPushButton* createTableButton = new QPushButton("Create Table");
-    QPushButton* editTableButton = new QPushButton("Edit Table");
-    QPushButton* deleteTableButton = new QPushButton("Delete Table");
-    hBoxLayout1->addWidget(createTableButton);
-    hBoxLayout1->addWidget(editTableButton);
-    hBoxLayout1->addWidget(deleteTableButton);
-    QTableWidget* structureTable = new QTableWidget(10, 3);  // number 10 is depend on the amount of tables
+    structureTable = new QTableWidget(0, 3);  // number 10 is depend on the amount of tables
     QStringList structureHeader;
     structureHeader << "Name" << "Type" << "Structure";
     structureTable->setHorizontalHeaderLabels(structureHeader);
@@ -46,20 +40,12 @@ MainWindow::MainWindow(QWidget *parent):
     QVBoxLayout* vBoxLayout2 = new QVBoxLayout;
     QHBoxLayout* hBoxLayout2 = new QHBoxLayout;
     QLabel* label = new QLabel("Table:");
-    QComboBox* comboBox = new QComboBox;
-    comboBox->addItem("Customers");
-    comboBox->addItem("Students");
-    QPushButton* createRecordButton = new QPushButton("Create Record");
-    QPushButton* deleteRecordButton = new QPushButton("Delete Record");
+    comboBox = new QComboBox;
     hBoxLayout2->addWidget(label);
     hBoxLayout2->addWidget(comboBox);
     hBoxLayout2->addSpacerItem(new QSpacerItem(100, 0, QSizePolicy::Expanding));
-    hBoxLayout2->addWidget(createRecordButton);
-    hBoxLayout2->addWidget(deleteRecordButton);
-    QTableWidget* mainTable = new QTableWidget(10, 5);  // not fixed
-    QStringList mainHeader;
-    mainHeader << "Name" << "id" << "Age" << "Gender" << "Grades";
-    mainTable->setHorizontalHeaderLabels(mainHeader);
+    mainTable = new QTableWidget(10, 5);  // not fixed
+
     mainTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     vBoxLayout2->addLayout(hBoxLayout2);
     vBoxLayout2->addWidget(mainTable);
@@ -77,15 +63,11 @@ MainWindow::MainWindow(QWidget *parent):
     hBoxLayout3->addWidget(runButton);
     hBoxLayout3->addWidget(openScriptButton);
     textEdit = new QPlainTextEdit;
-    QTableWidget* resultTable = new QTableWidget(5, 5);
-    resultTable->setHorizontalHeaderLabels(mainHeader);
-    resultTable->setFixedHeight(180);
     lineEdit = new QPlainTextEdit;
     lineEdit->setReadOnly(true);
-    lineEdit->setFixedHeight(60);
+    lineEdit->setFixedHeight(200);
     vBoxLayout3->addLayout(hBoxLayout3);
     vBoxLayout3->addWidget(textEdit);
-    vBoxLayout3->addWidget(resultTable);
     vBoxLayout3->addWidget(lineEdit);
     QWidget* tab3 = new QWidget;
     tab3->setLayout(vBoxLayout3);
@@ -104,33 +86,37 @@ void MainWindow::select(vector<string> tableList) {
     myCommands.basicSelect(&tableList, 5, allRes);
     MyTable *myTable= myCommands.myFileIO->getTable(tableList[0]);
     if(myTable == 0){
+        cout << "MyTable is null" << endl;
+    } else {
+        TableCols *tc = &(myTable->cols);
+        int colLen = tc->cols.size();
+        QStringList mainHeader;
+        for (auto it = tc->cols.begin(); it != tc->cols.end(); ++it) {
+            mainHeader << (it->name).c_str();
+        }
+        mainTable->setHorizontalHeaderLabels(mainHeader);
+        MyCol* myCol;
+        MyValue value;
+        int num,offset;
 
-    }
-    TableCols *tc = &(myTable->cols);
-    int colLen = tc->cols.size();
-    MyCol* myCol;
-    MyValue value;
-    int num,offset;
-
-    int len = allRes[0]->size();
-    for (int i = 0; i < len; ++i)
-    {
-        for(int j = 0; j < colLen; ++j){
-            myCol=tc->getByCol(j,num,offset);
-            (*allRes[0])[i]->getValue(num,offset,myCol,value);
-//            value.print();
-            cout << i << " " << j << endl;
-            switch(value.type){
-                case TYPE_INT:
-                    cout << *((int*)value.res) << endl;
-                    break;
-                case TYPE_CHAR:
-                case TYPE_VARCHAR:
-                    char* content = new char[value.dataLen + 1];
-                    strncpy(content, value.res, value.dataLen);
-                    content[value.dataLen] = '\0';
-                    cout << content << endl;
-                    break;
+        int len = allRes[0]->size();
+        for (int i = 0; i < len; ++i) {
+            for(int j = 0; j < colLen; ++j){
+                myCol=tc->getByCol(j,num,offset);
+                (*allRes[0])[i]->getValue(num,offset,myCol,value);
+                cout << i << " " << j << endl;
+                switch(value.type){
+                    case TYPE_INT:
+                        cout << *((int*)value.res) << endl;
+                        break;
+                    case TYPE_CHAR:
+                    case TYPE_VARCHAR:
+                        char* content = new char[value.dataLen + 1];
+                        strncpy(content, value.res, value.dataLen);
+                        content[value.dataLen] = '\0';
+                        cout << content << endl;
+                        break;
+                }
             }
         }
     }
@@ -139,24 +125,40 @@ void MainWindow::select(vector<string> tableList) {
 void MainWindow::openDatabase() {
     vector<string> dbNames;
     myCommands.showDBs(dbNames);
-
-    QInputDialog* dialog = new QInputDialog;
-    dialog->setOption(QInputDialog::UseListViewForComboBoxItems);
-    QStringList dbNamesList;
-    foreach (string name, dbNames) {
-        dbNamesList << name.c_str();
+    if (dbNames.size() == 0) {
+        QMessageBox msgBox;
+        msgBox.setText("No database created now.");
+        msgBox.exec();
+    } else {
+        QInputDialog* dialog = new QInputDialog;
+        dialog->setOption(QInputDialog::UseListViewForComboBoxItems);
+        QStringList dbNamesList;
+        foreach (string name, dbNames) {
+            dbNamesList << name.c_str();
+        }
+        dialog->setComboBoxItems(dbNamesList);
+        dialog->setLabelText("Select a database:");
+        connect(dialog, SIGNAL(textValueSelected(QString)), this, SLOT(setUsingDb(QString)));
+        dialog->show();
     }
-    dialog->setComboBoxItems(dbNamesList);
-    dialog->setLabelText("Select a database:");
-    connect(dialog, SIGNAL(textValueSelected(QString)), this, SLOT(setUsingDb(QString)));
-    dialog->show();
 }
 
 void MainWindow::setUsingDb(QString dbName) {
     usingDb = dbName.toStdString();
     myCommands.useDB(usingDb);
+    vector<string> tableNames;
+    myCommands.showTables(tableNames);
+    if (tableNames.size() == 0) {
+        // no table
+    } else {
+        structureTable->setRowCount(tableNames.size());
+        for (auto it = tableNames.begin(); it != tableNames.end(); ++it) {
+            structureTable->setItem(it - tableNames.begin(), 0, new QTableWidgetItem((*it).c_str()));
+            comboBox->addItem((*it).c_str());
+        }
+    }
     vector<string> dbList;
-    dbList.push_back("customer");
+    dbList.push_back(dbName.toStdString());
     select(dbList);
 }
 
@@ -174,4 +176,6 @@ void MainWindow::runSql() {
     // redirect to info
     string info = streamBuffer.str();
     lineEdit->appendPlainText(info.c_str());
+
+    textEdit->clear();
 }

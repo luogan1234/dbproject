@@ -16,6 +16,10 @@ void MyCommands::showDBs()
     }
 }
 
+void MyCommands::showDBs(vector<string> &dbNames) {
+    myFileIO->showDB(dbNames);
+}
+
 bool MyCommands::createDB(string dbname)
 {
     bool ret = myFileIO->createDB(dbname);
@@ -48,6 +52,10 @@ void MyCommands::showTables()
     		cout << tableName[i] << " ";
     	cout << endl;
     }
+}
+
+void MyCommands::showTables(vector<string>& tableNames) {
+    myFileIO->getTables(tableNames);
 }
 
 bool MyCommands::createTable(string tableName, TableCols *tableCols)
