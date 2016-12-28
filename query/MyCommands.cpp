@@ -16,10 +16,6 @@ void MyCommands::showDBs()
     }
 }
 
-void MyCommands::showDBs(vector<string> dbNames) {
-    myFileIO->showDB(dbNames);
-}
-
 bool MyCommands::createDB(string dbname)
 {
     bool ret = myFileIO->createDB(dbname);
@@ -85,6 +81,7 @@ bool MyCommands::addCheck(MyCol *myCol, std::vector<AllValue*> *v, int dataType,
                         myCol->addWordList((*v)[i]->strVal);
                     else{
                         cout << "Check Error: DataWide Error" << endl;
+                        cout << (*v)[i]->strVal << " " << dataWide << endl;
                         return false;
                     }
                 }else{
@@ -107,7 +104,7 @@ bool MyCommands::addCheck(MyCol *myCol, std::vector<AllValue*> *v, int dataType,
     return true;
 }
 
-MyCol* MyCommands::createForeignKey(std::string tableName, std::string colName)
+MyCol* MyCommands::createForeignKey(std::string myColName, std::string tableName, std::string colName)
 {
     MyTable *myTable = myFileIO->getTable(tableName);
     if(myTable == 0){
@@ -123,9 +120,9 @@ MyCol* MyCommands::createForeignKey(std::string tableName, std::string colName)
     if(myCol->isPrimary == false){
         cout << "your target is not primary key";
         return 0;
-    }
-    
-    return myCol;
+    }   
+    MyCol *thisCol = new MyCol(myCol->type,myCol->len,false,myCol->canBeNull,myColName,colName,false);
+    return thisCol;
 }
 
 bool MyCommands::dropTable(string tableName)

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+class MyFileIO;
 class MyData;
 class TableCols
 {
@@ -46,12 +47,14 @@ public:
 
     //返回所有列中是否有主键，如果有返回colID，否则返回-1
      int hasPrimaryKey();
+     
+     bool hasForeignKey();
      //返回所有外键信息，格式是外键所处列和相应外键指向的数据表名称
      void getAllForeignKey(std::vector<std::pair<int,std::string> > &res);
      //返回指向指定数据表的外键
      void getForeignKey(std::string name,std::vector<int> &res);
      //检查数据在所有列都符合给定词限制
-     bool checkData(MyData* data);
+     bool checkData(MyData* data, MyFileIO* myFileIO);
 
     //-----add by lmq------
     bool setPrimary(std::string name)

@@ -292,7 +292,7 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
     if (type!=INDEX_CLUSTERED&&slot==-1)
         return false;
     int pageNow=rootPage,comRes;
-    pages.clear();nows.clear();_slots.clear();indexs.clear();
+    pages.clear();nows.clear();slots.clear();indexs.clear();
     while (true)
     {
         char* page0=bm->getPage(fileID,pageNow,index);
@@ -318,7 +318,7 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
             pages.push_back(page0);
             nows.push_back(pageNow);
             indexs.push_back(index);
-            _slots.push_back(1);
+            slots.push_back(1);
             return true;
         }
         while (k<eleNum)
@@ -356,7 +356,7 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     pages.push_back(page0);
                     nows.push_back(pageNow);
                     indexs.push_back(index);
-                    _slots.push_back(k);
+                    slots.push_back(k);
                     pageNow=*(int*)(page0+*ele);
                     break;
                 } else
@@ -371,10 +371,10 @@ bool MyIndex::searchData(MyValue* value,int page,int slot,int pp)
                     indexs.push_back(index);
                     int _page=-1,_slot=-1;
                     if (comRes==COMPARE_LARGER)
-                        _slots.push_back(k+1);
+                        slots.push_back(k+1);
                     else
                     {
-                        _slots.push_back(k);
+                        slots.push_back(k);
                         _page=*(int*)(page0+*ele);
                         if (type!=INDEX_CLUSTERED)
                             _slot=*(int*)(page0+*ele+4);
@@ -443,7 +443,7 @@ bool MyIndex::insertData(MyValue* value,int page,int slot)
         {
             if (vl.dataLen==0&&vn.dataLen==0&&vr.dataLen==0)
                 break;
-            page0=pages[o];k=_slots[o];
+            page0=pages[o];k=slots[o];
             int i,j=0,tot=0;eleNum=*(int*)(page0+8188);
             for (i=1;i<=eleNum+1;++i)
             {
@@ -654,7 +654,7 @@ bool MyIndex::deleteData(MyValue* value,int page,int slot)
         int m=pages.size()-1,o;
         for (o=m;o>=0;--o)
         {
-            page0=pages[o];k=_slots[o];
+            page0=pages[o];k=slots[o];
             bm->markDirty(indexs[o]);
             int i;eleNum=*(int*)(page0+8188);
             int *ele,*next=(int*)(page0+8184-k*4);
@@ -702,7 +702,7 @@ bool MyIndex::deleteData(MyValue* value,int page,int slot)
                     }else
                     {
                         char* page00=pages[o-1];
-                        k=_slots[o-1];
+                        k=slots[o-1];
                         *(int*)(page00+*(int*)(page00+8188-k*4))=pointPage;
                         bm->markDirty(indexs[o-1]);
                     }

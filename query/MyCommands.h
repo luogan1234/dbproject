@@ -9,6 +9,7 @@
 class MyCommands
 {
 private:
+    MyFileIO *myFileIO;
     std::vector<Selector*> *selector;
     std::vector<WhereClause*> *where;
     void showMyDatasCol(std::vector<MyData*> datas, TableCols *tc, int index, int colLen);
@@ -16,9 +17,7 @@ private:
     void searchByIndex(WhereClause *w, MyIndex *index, MyTable *table, Constraints* con, std::vector<MyData*> &res);
     bool joinSearch(MyTable *table, std::vector<std::string> *tableList);
 public:
-    MyFileIO *myFileIO;
     void showDBs();
-    void showDBs(vector<string> dbNames);
     bool createDB(std::string dbName);
     bool dropDB(std::string dbName);
     bool useDB(std::string dbName);
@@ -26,7 +25,7 @@ public:
     void showTables();
     bool createTable(std::string tableName, TableCols *tableCols);
     bool addCheck(MyCol *myCol, std::vector<AllValue*> *v, int dataType, int dataWide);
-    MyCol* createForeignKey(std::string tableName, std::string colName);
+    MyCol* createForeignKey(std::string myColName, std::string tableName, std::string colName);
     bool createIndex(std::string tableName, std::string colName);
     bool createPrimaryKeyIndex(std::string tableName);
     bool dropIndex(std::string tableName, std::string colName);

@@ -76,7 +76,7 @@ bool MyTable::hasUniqueIndex()
 
 bool MyTable::isUnique(MyData *data)
 {
-    if (!cols.checkData(data))
+    if (!cols.checkData(data,myFileIO))
         return false;
     int i,num,offset,colID;
     MyValue value;
@@ -116,7 +116,7 @@ bool MyTable::isUnique(vector<MyData*> &datas)
             {
                 datas[j]->getValue(num,offset,&cols.cols[colID],value);
                 indexes[i]->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
-                if (res.size()>0||!cols.checkData(datas[j]))
+                if (res.size()>0||!cols.checkData(datas[j],myFileIO))
                 {
                     p=false;
                     res.clear();
@@ -803,7 +803,7 @@ bool MyTable::deleteData(std::vector<std::pair<int,int>> &datas,Constraints* con
 bool MyTable::updateData(std::vector<std::pair<int,int>> &datas,Constraints* con,Updates* upd)
 {
     sort(datas.begin(),datas.end(),cmp3);
-    int n=datas.size(),i,m;
+    int n=datas.size(),i;
     bool *p=new bool[totalUsed];
     for (i=0;i<totalUsed;++i)
         p[i]=false;
@@ -844,7 +844,7 @@ bool MyTable::updateDataSafe(std::vector<std::pair<int,int>> &datas,Constraints*
     if (!hasUniqueIndex())
         return updateData(datas,con,upd);
     sort(datas.begin(),datas.end(),cmp3);
-    int n=datas.size(),i,m;
+    int n=datas.size(),i;
     bool *p=new bool[totalUsed];
     for (i=0;i<totalUsed;++i)
         p[i]=false;

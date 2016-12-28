@@ -11,7 +11,7 @@ int line=1;
 
 ID                  [A-Za-z][A-Za-z0-9|_]*
 NUMBER              (-)?[0-9][0-9]*
-MY_STRING            '[A-Za-z][A-Za-z0-9|_|\x20|-]*'
+MY_STRING            '[A-Za-z0-9|_|\x20|\t|\-|[\\']*|[\\"]*|\(|\)|\[|\]|\,|\.|\?|\:|\&|\;|\#|\/|\!|\+|\=|\*|\@|\$|\%|\^|\~|\`|\>|\<|\{|\}]+'
 
 %%
 
@@ -59,6 +59,6 @@ MY_STRING            '[A-Za-z][A-Za-z0-9|_|\x20|-]*'
 {NUMBER}			{ yylval.num_t = atoi(yytext); return T_VALUE_INT; }
 {ID} 				{ yylval.id_t = strdup(yytext); return T_ID; }
 {MY_STRING} 		{ yylval.id_t = strdup(yytext); return T_STRING; }
-['\n']+				{ }
+['\n']+				{ line++;}
 
 %%

@@ -8,4 +8,4 @@ rm parser.tab.c;
 rm lex.yy.c;
 cd ..;
 make;
-./dbproject testSys.txt;
+./dbproject dataset/create.sql;

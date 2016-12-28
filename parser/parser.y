@@ -257,9 +257,9 @@ field   : colName type
 	{
 		$$ = new MyCol(0, 4, true, true, $3, "", true);
 	}
-	|T_FOREIGN_KEY T_LEFT_BRACKET tbName T_DOT colName T_RIGHT_BRACKET
+	|T_FOREIGN_KEY colName T_LEFT_BRACKET tbName T_DOT colName T_RIGHT_BRACKET
 	{
-		$$ = commands.createForeignKey(string($3), string($5));
+		$$ = commands.createForeignKey(string($2), string($4), string($6));
 	}
 ;
 type 	: T_INT T_LEFT_BRACKET T_VALUE_INT T_RIGHT_BRACKET
