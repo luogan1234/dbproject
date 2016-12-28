@@ -61,10 +61,8 @@ MainWindow::MainWindow(QWidget *parent):
     QHBoxLayout* hBoxLayout3 = new QHBoxLayout;
     hBoxLayout3->setAlignment(Qt::AlignLeft);
     QPushButton* runButton = new QPushButton("Run");
-    QPushButton* openScriptButton = new QPushButton("Open Script");
     connect(runButton, SIGNAL(clicked(bool)), this, SLOT(runSql()));
     hBoxLayout3->addWidget(runButton);
-    hBoxLayout3->addWidget(openScriptButton);
     textEdit = new QPlainTextEdit;
     lineEdit = new QPlainTextEdit;
     lineEdit->setReadOnly(true);
