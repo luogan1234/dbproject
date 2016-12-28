@@ -40,11 +40,14 @@ MainWindow::MainWindow(QWidget *parent):
     QVBoxLayout* vBoxLayout2 = new QVBoxLayout;
     QHBoxLayout* hBoxLayout2 = new QHBoxLayout;
     QLabel* label = new QLabel("Table:");
+    QPushButton* refreshButton = new QPushButton("Refresh");
     comboBox = new QComboBox;
     hBoxLayout2->addWidget(label);
     hBoxLayout2->addWidget(comboBox);
+    hBoxLayout2->addWidget(refreshButton);
     hBoxLayout2->addSpacerItem(new QSpacerItem(100, 0, QSizePolicy::Expanding));
     mainTable = new QTableWidget(10, 5);  // not fixed
+    connect(refreshButton, SIGNAL(clicked(bool)), this, SLOT(refresh()));
 
     mainTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     vBoxLayout2->addLayout(hBoxLayout2);
@@ -119,6 +122,14 @@ void MainWindow::select(vector<string> tableList) {
                 }
             }
         }
+    }
+}
+
+void MainWindow::refresh() {
+    if (!usingDb.empty()) {
+        vector<string> dbNameList;
+        dbNameList.push_back(usingDb);
+        select(dbNameList);
     }
 }
 

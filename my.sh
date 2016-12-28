@@ -8,4 +8,4 @@ rm parser.tab.c;
 rm lex.yy.c;
 cd ..;
 make;
-./dbproject dataset/customer.sql;
+./dbproject dataset/publisher.sql;

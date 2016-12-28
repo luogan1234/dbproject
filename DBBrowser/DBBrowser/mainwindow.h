@@ -31,6 +31,7 @@ private slots:
     void openDatabase();
     void setUsingDb(QString dbName);
     void runSql();
+    void refresh();
 
 private:
     Ui::MainWindow *ui;
@@ -43,11 +44,12 @@ private:
 
     QTabWidget* tabWidget;
     MyCommands myCommands;
-    void select(vector<string> tableList);
     string usingDb;
 
     QPlainTextEdit* textEdit;
     QPlainTextEdit* lineEdit;
+
+    void select(vector<string> tableList);
 };
 
 #endif // MAINWINDOW_H
