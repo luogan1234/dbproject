@@ -45,6 +45,7 @@ private:
     QTabWidget* tabWidget;
     MyCommands myCommands;
     string usingDb;
+    string usingTable;
 
     QPlainTextEdit* textEdit;
     QPlainTextEdit* lineEdit;

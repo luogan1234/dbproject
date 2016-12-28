@@ -7,7 +7,7 @@ SHOW TABLES;
 CREATE TABLE customer(
 id int(10) NOT NULL,
 name char(25) NOT NULL,
-gender char(1) NOT NULL,
+gender char(1) CHECK('F', 'M') NOT NULL,
 PRIMARY KEY(id)
 );
 CREATE TABLE customer1(
@@ -18,6 +18,7 @@ PRIMARY KEY(id)
 );
 SHOW TABLES;
 DESC customer;
+SELECT customer.id FROM WHERE customer.id = ....id AND .gen 
 DROP TABLE customer;
 SHOW TABLES;
 DROP DATABASE orderDB;

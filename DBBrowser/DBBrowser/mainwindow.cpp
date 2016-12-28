@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent):
     hBoxLayout2->addWidget(comboBox);
     hBoxLayout2->addWidget(refreshButton);
     hBoxLayout2->addSpacerItem(new QSpacerItem(100, 0, QSizePolicy::Expanding));
-    mainTable = new QTableWidget(10, 5);  // not fixed
+    mainTable = new QTableWidget(0, 0);  // not fixed
     connect(refreshButton, SIGNAL(clicked(bool)), this, SLOT(refresh()));
 
     mainTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -89,10 +89,10 @@ void MainWindow::select(vector<string> tableList) {
     myCommands.basicSelect(&tableList, 5, allRes);
     MyTable *myTable= myCommands.myFileIO->getTable(tableList[0]);
     if(myTable == 0){
-        cout << "MyTable is null" << endl;
     } else {
         TableCols *tc = &(myTable->cols);
         int colLen = tc->cols.size();
+        mainTable->setColumnCount(colLen);
         QStringList mainHeader;
         for (auto it = tc->cols.begin(); it != tc->cols.end(); ++it) {
             mainHeader << (it->name).c_str();
@@ -103,6 +103,8 @@ void MainWindow::select(vector<string> tableList) {
         int num,offset;
 
         int len = allRes[0]->size();
+        cout << len << endl;
+        mainTable->setRowCount(len);
         for (int i = 0; i < len; ++i) {
             for(int j = 0; j < colLen; ++j){
                 myCol=tc->getByCol(j,num,offset);
@@ -110,14 +112,14 @@ void MainWindow::select(vector<string> tableList) {
                 cout << i << " " << j << endl;
                 switch(value.type){
                     case TYPE_INT:
-                        cout << *((int*)value.res) << endl;
+                        mainTable->setItem(i, j, new QTableWidgetItem(to_string(*((int*)value.res)).c_str()));
                         break;
                     case TYPE_CHAR:
                     case TYPE_VARCHAR:
                         char* content = new char[value.dataLen + 1];
                         strncpy(content, value.res, value.dataLen);
                         content[value.dataLen] = '\0';
-                        cout << content << endl;
+                        mainTable->setItem(i, j, new QTableWidgetItem(content));
                         break;
                 }
             }
@@ -126,10 +128,11 @@ void MainWindow::select(vector<string> tableList) {
 }
 
 void MainWindow::refresh() {
-    if (!usingDb.empty()) {
-        vector<string> dbNameList;
-        dbNameList.push_back(usingDb);
-        select(dbNameList);
+    usingTable = comboBox->currentText().toStdString();
+    if (!usingTable.empty()) {
+        vector<string> tableList;
+        tableList.push_back(usingTable);
+        select(tableList);
     }
 }
 
@@ -168,9 +171,6 @@ void MainWindow::setUsingDb(QString dbName) {
             comboBox->addItem((*it).c_str());
         }
     }
-    vector<string> dbList;
-    dbList.push_back(dbName.toStdString());
-    select(dbList);
 }
 
 void MainWindow::runSql() {

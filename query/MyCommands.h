@@ -48,6 +48,7 @@ public:
     }
     ~MyCommands()
     {
+        myFileIO->closeAll();
         delete myFileIO;
     }
 };
