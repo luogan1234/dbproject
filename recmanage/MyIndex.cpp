@@ -34,6 +34,7 @@ void MyIndex::init()
     *(int*)page1=PAGE_LEAF;
     *(int*)(page1+8188)=0;
     *(int*)(page1+8184)=12;
+    bm->markDirty(index0);
 }
 
 void MyIndex::getInfo()
