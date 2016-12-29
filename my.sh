@@ -1,4 +1,3 @@
-rm -rf data;
 cmake .;
 cd parser;
 flex lexer.l;
@@ -9,4 +8,4 @@ rm parser.tab.c;
 rm lex.yy.c;
 cd ..;
 make;
-./dbproject testSys.txt;
+./dbproject dataset/publisher.sql;

@@ -8,22 +8,29 @@ SHOW TABLES;
 CREATE TABLE customer(
 id int(10) NOT NULL,
 name char(25) NOT NULL,
-gender char(1) NOT NULL,
+gender char(1) CHECK('M','F') NOT NULL,
 PRIMARY KEY(id)
 );
 CREATE TABLE customer1(
 id int(10) NOT NULL,
 name char(25) NOT NULL,
-gender char(1) NOT NULL,
-PRIMARY KEY(id)
+gender char(1) CHECK('M','F') NOT NULL,
+PRIMARY KEY(id),
+FOREIGN KEY fore(customer.id)
 );
-SELECT FROM customer;
-INSERT INTO customer VALUES (2222, 'attrValue2', 'F'), (1111, 'adsdrdslse2', 'M');
-INSERT INTO customer VALUES (111, 'adsdrdsldse2', 'M');
-SELECT FROM customer, customer1;
-SHOW TABLES;
 DESC customer;
-SHOW TABLES;
-SHOW DATABASES;
-
-
+DROP INDEX customer(name);
+CREATE INDEX customer(name);
+INSERT INTO customer VALUES (111, 'attrValue2', 'M'), 
+ (300347,'JAMIE \'MACMILLAN','F'),
+ (300348,'ERNEST BARNA','F'),
+ (300349,'CHARLES WILHELM','M'),
+ (300350,'MERRIE TESTON','F'),
+ (300351,'ALEISHA HILBURN','F'),
+ (300352,'PALMER CURLEY','M'),
+ (300353,'DAYLE LEUNG','F'),
+ (300354,'SHAROLYN BOWES','M'),
+ (300355,'JODY FARRIS','F'),
+(1111, 'adsdrdslse2', 'F');
+INSERT INTO customer1 VALUES (111, 'attrV', 'M', 112);
+SELECT FROM customer,customer1 WHERE customer1.id = customer.id;

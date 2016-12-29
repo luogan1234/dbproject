@@ -7,6 +7,14 @@
 #include <iostream>
 using namespace std;
 
+string MyValue::toString()
+{
+    string ans="";
+    for (int i=0;i<dataLen;++i)
+        ans+=res[i];
+    return ans;
+}
+
 void MyValue::get(int valueType,int valueLen,bool canNull,char *pos,int len)
 {
     type=valueType;

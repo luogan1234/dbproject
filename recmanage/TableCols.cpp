@@ -4,10 +4,15 @@
 
 #include "TableCols.h"
 #include "../StaticMethod.h"
+#include "MyData.h"
+#include "MyTable.h"
+#include "MyFileIO.h"
 
-std::string TableCols::toString()
+using namespace std;
+
+string TableCols::toString()
 {
-    std::string ans="";
+    string ans="";
     for (size_t i=0;i<cols.size();++i)
     {
         ans+=cols[i].toString()+StaticMethod::p3;
@@ -15,7 +20,7 @@ std::string TableCols::toString()
     return ans;
 }
 
-bool TableCols::getFromString(std::string rec)
+bool TableCols::getFromString(string rec)
 {
     cols.clear();
     size_t last=0,i,size=rec.size();
@@ -62,7 +67,7 @@ void TableCols::setOrder()
         }
 }
 
-MyCol* TableCols::getByName(std::string _name,int &_num,int &_offset)      //num代表第几个varchar，offset代表数据起始位置偏移量
+MyCol* TableCols::getByName(string _name,int &_num,int &_offset)      //num代表第几个varchar，offset代表数据起始位置偏移量
 {
     for (int i=0;i<n;++i)
     {
@@ -104,10 +109,91 @@ MyCol* TableCols::getByOrder(int p, int &_num,int &_offset)
     return 0;
 }
 
-int TableCols::getColID(std::string _name)
+int TableCols::getColID(string _name)
 {
     for (int i=0;i<n;++i)
         if (cols[order[i]].name==_name)
             return i;
     return -1;
+}
+
+int TableCols::hasPrimaryKey()
+{
+    for (int i=0;i<n;++i)
+        if (cols[i].isPrimary)
+            return i;
+    return -1;
+}
+
+bool TableCols::hasForeignKey()
+{
+    for (int i=0;i<n;++i)
+        if (cols[i].outerTableName!="")
+            return true;
+    return false;
+}
+
+void TableCols::getAllForeignKey(vector<pair<int,string> > &res)
+{
+    res.clear();
+    for (int i=0;i<n;++i)
+        if (cols[i].outerTableName!="")
+            res.push_back(make_pair(i,cols[i].outerTableName));
+}
+
+void TableCols::getForeignKey(string name,vector<int> &res)
+{
+    res.clear();
+    for (int i=0;i<n;++i)
+        if (cols[i].outerTableName==name)
+            res.push_back(i);
+}
+
+bool TableCols::checkData(MyData* data,MyFileIO* myFileIO)
+{
+    int num,offset;
+    MyCol* myCol;
+    MyValue value;
+    std::vector<std::pair<int,int> > res;
+    for (int i=0;i<n;++i)
+    {
+        if (cols[i].wordList.size()>0)
+        {
+            myCol=getByCol(i,num,offset);
+            data->getValue(num,offset,myCol,value);
+            if (!myCol->isInWordList(value))
+                return false;
+        }
+        if (cols[i].outerTableName!="")
+        {
+            myCol=getByCol(i,num,offset);
+            data->getValue(num,offset,myCol,value);
+            MyTable *table=myFileIO->getTable(cols[i].outerTableName);
+            if (table&&table->cols.hasPrimaryKey()!=-1)
+            {
+                if (value.type!=TYPE_INT)
+                {
+                    delete table;
+                    return false;
+                }
+                MyIndex* myIndex=table->getClusteredIndex();
+                if (!myIndex)
+                {
+                    delete table;
+                    return false;
+                }
+                myIndex->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
+                if (res.size()==0)
+                {
+                    delete table;
+                    delete myIndex;
+                    return false;
+                }
+                delete myIndex;
+            }
+            if (table)
+                delete table;
+        }
+    }
+    return true;
 }

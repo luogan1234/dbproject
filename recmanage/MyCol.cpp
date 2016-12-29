@@ -70,3 +70,17 @@ bool MyCol::isInWordList(std::string w)
             return true;
     return false;
 }
+
+bool MyCol::isInWordList(MyValue &value)
+{
+    int m=wordList.size(),i;
+    if (m==0||value.isNull)
+        return true;
+    if (value.type==TYPE_INT)
+        return false;
+    std::string w=value.toString();
+    for (i=0;i<m;++i)
+        if (wordList[i]==w)
+            return true;
+    return false;
+}

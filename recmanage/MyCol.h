@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include "../consts.h"
+#include "MyValue.h"
+
 class MyCol
 {
 public:
@@ -40,6 +42,8 @@ public:
     bool getFromString(std::string rec);
 
     bool isInWordList(std::string w);
+
+    bool isInWordList(MyValue &value);
 
 };
 #endif //DBPROJECT_MYCOL_H

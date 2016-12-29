@@ -9,11 +9,13 @@
 int line=1;
 %}
 
-ID                  [A-Za-z][A-Za-z0-9]*
-NUMBER              [0-9][0-9]*
+ID                  [A-Za-z][A-Za-z0-9|_]*
+NUMBER              (-)?[0-9][0-9]*
+MY_STRING           \'(\\.|[^\n'\\])*\'
+
+  // '[A-Za-z0-9|_|\x20|\t|\-|\(|\)|\[|\]|\,|\.|\?|\:|\&|\;|\#|\/|\!|\+|\=|\*|\@|\$|\%|\^|\~|\`|\>|\<|\{|\}|(\\\')|(\\\")]+'
 
 %%
-
 "CREATE" 				{ return T_CREATE; }
 "DATABASE" 				{ return T_DATABASE; }
 "DATABASES" 			{ return T_DATABASES; }
@@ -25,6 +27,8 @@ NUMBER              [0-9][0-9]*
 "NOT NULL" 				{ return T_NOT_NULL; }
 "NULL"					{ return T_NULL; }
 "PRIMARY KEY" 			{ return T_PRIMARY_KEY; }
+"FOREIGN KEY" 			{ return T_FOREIGN_KEY; }
+"CHECK" 				{ return T_CHECK; }
 "DESC" 					{ return T_DESC; }
 "INDEX" 				{ return T_INDEX; }
 "INSERT"				{ return T_INSERT; }
@@ -39,7 +43,8 @@ NUMBER              [0-9][0-9]*
 "IS"					{ return T_IS; }
 "AND"					{ return T_AND; }
 "int"					{ return T_INT; }
-"char"					{ return T_VARCHAR; }
+"char"					{ return T_CHAR; }
+"varchar"				{ return T_VARCHAR; }
 "="						{ return T_EQUAL; }
 "<>"					{ return T_NOT_EQUAL; }
 "<="					{ return T_NO_MORE_THAN; }
@@ -47,7 +52,6 @@ NUMBER              [0-9][0-9]*
 "<"						{ return T_LESS_THAN; }
 ">"						{ return T_MORE_THAN; }
 ";"						{ return T_COLON; }
-"'"						{ return T_QUOTATION; }
 "."						{ return T_DOT; }
 ","						{ return T_COMMA; }
 "("						{ return T_LEFT_BRACKET; }
@@ -55,6 +59,7 @@ NUMBER              [0-9][0-9]*
 
 {NUMBER}			{ yylval.num_t = atoi(yytext); return T_VALUE_INT; }
 {ID} 				{ yylval.id_t = strdup(yytext); return T_ID; }
-['\n']+				{ }
+{MY_STRING} 		{ yylval.id_t = strdup(yytext); return T_STRING; }
+['\n']+				{ line++;}
 
 %%
