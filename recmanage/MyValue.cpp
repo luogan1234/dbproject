@@ -10,6 +10,8 @@ using namespace std;
 string MyValue::toString()
 {
     string ans="";
+    if (isNull||type==TYPE_INT)
+        return ans;
     for (int i=0;i<dataLen;++i)
         ans+=res[i];
     return ans;

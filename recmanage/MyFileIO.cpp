@@ -7,6 +7,8 @@
 
 using namespace std;
 
+MyFileIO* MyFileIO::myFileIO=0;
+
 void MyFileIO::loadDBInfo()
 {
     ifstream fin("./data/dbnames");

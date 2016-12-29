@@ -24,6 +24,7 @@ private:
     void saveDBInfo();
     void loadTableInfo();
     void saveTableInfo();
+    static MyFileIO* myFileIO;
 public:
     MyFileIO()
     {
@@ -33,6 +34,13 @@ public:
             system("mkdir ./data");
         loadDBInfo();
         fileID=-2147483647;
+    }
+
+    static MyFileIO* getInstance()
+    {
+        if (!myFileIO)
+            myFileIO=new MyFileIO();
+        return myFileIO;
     }
 
     ~MyFileIO()
@@ -67,6 +75,5 @@ public:
     //根据表名获取外键
     void getAllForeignKey(std::string name,std::vector<std::pair<int,std::string> > &res);
 };
-
 
 #endif //DBPROJECT_MYFILEIO_H

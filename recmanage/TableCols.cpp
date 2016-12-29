@@ -157,17 +157,17 @@ bool TableCols::checkData(MyData* data,MyFileIO* myFileIO)
     std::vector<std::pair<int,int> > res;
     for (int i=0;i<n;++i)
     {
+        myCol=getByCol(i,num,offset);
+        data->getValue(num,offset,myCol,value);
+        if (value.isNull)
+            continue;
         if (cols[i].wordList.size()>0)
         {
-            myCol=getByCol(i,num,offset);
-            data->getValue(num,offset,myCol,value);
             if (!myCol->isInWordList(value))
                 return false;
         }
         if (cols[i].outerTableName!="")
         {
-            myCol=getByCol(i,num,offset);
-            data->getValue(num,offset,myCol,value);
             MyTable *table=myFileIO->getTable(cols[i].outerTableName);
             if (table&&table->cols.hasPrimaryKey()!=-1)
             {
