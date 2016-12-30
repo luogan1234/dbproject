@@ -11,36 +11,53 @@ using namespace std;
 int main() {
     FileManager fm;
     int fileID;
-    MyCol m1(TYPE_INT, 10, true, false, "teset1");
-    MyCol m2(TYPE_VARCHAR, 50, false, false, "teset2");
-    MyCol m3(TYPE_VARCHAR, 5, false, false, "teset3");
-    MyCol m4(TYPE_CHAR, 11, false, false, "teset4");
-    MyCol m5(TYPE_INT, 10, false, false, "teset5","test");
-    m3.addWordList("test");
-    m3.addWordList("aaa");
-    TableCols tc,tc2;
+    MyCol m1(TYPE_INT, 10, true, false, "id");
+    MyCol m2(TYPE_VARCHAR, 100, false, false, "title");
+    MyCol m3(TYPE_VARCHAR, 200, false, true, "authors");
+    MyCol m4(TYPE_INT, 10, false, false, "publisher_id");
+    MyCol m5(TYPE_INT, 10, false, true, "copies");
+
+    MyCol m6(TYPE_INT, 10, true, false, "id");
+    MyCol m7(TYPE_VARCHAR, 25, false, false, "name");
+    MyCol m8(TYPE_VARCHAR, 1, false, true, "gender");
+
+    MyCol m9(TYPE_INT, 10, false, false, "customer_id","customer");
+    MyCol m10(TYPE_INT, 10, false, false, "book_id","book");
+    MyCol m11(TYPE_INT, 10, false, false, "quantity");
+    TableCols tc,tc2,tc3;
     tc.addCol(m1);
     tc.addCol(m2);
     tc.addCol(m3);
     tc.addCol(m4);
+    tc.addCol(m5);
     tc.setOrder();
-    tc2.addCol(m5);
+    tc2.addCol(m6);
+    tc2.addCol(m7);
+    tc2.addCol(m8);
     tc2.setOrder();
+    tc3.addCol(m9);
+    tc3.addCol(m10);
+    tc3.addCol(m11);
+    tc3.setOrder();
     MyFileIO myFileIO;
     myFileIO.createDB("test");
     myFileIO.useDB("test");
-    myFileIO.createTable("test", tc.toString());
-    myFileIO.createTable("test2", tc2.toString());
-    MyTable *myTable,*myTable2;
-    myTable = myFileIO.getTable("test");
-    myTable2 = myFileIO.getTable("test2");
+    myFileIO.createTable("book", tc.toString());
+    myFileIO.createTable("customer", tc2.toString());
+    myFileIO.createTable("orders", tc3.toString());
+    MyTable *myTable,*myTable2,*myTable3;
+    myTable = myFileIO.getTable("book");
+    myTable2 = myFileIO.getTable("customer");
+    myTable3 = myFileIO.getTable("orders");
     bool p=myTable->createIndex(0,INDEX_CLUSTERED,false,false);
+    cout<<p<<endl;
+    p=myTable2->createIndex(0,INDEX_CLUSTERED,false,false);
     cout<<p<<endl;
     int num,offset;
     MyData* myData;
     MyCol* myCol;
     MyValue value;
-    for (int j=0;j<10;++j)
+/*    for (int j=0;j<10;++j)
     {
         myData=new MyData(tc);
         for (int i=0;i<4;++i)
@@ -65,12 +82,21 @@ int main() {
         }
         myData->print();
         myTable->insertData(myData);
-    }
-    myData=new MyData(tc2);
-    myCol=tc2.getByCol(0,num,offset);
-    MyData::format(555555,myCol,value);
+    }*/
+    myData=new MyData(tc3);
+    myCol=tc3.getByCol(0,num,offset);
+    MyData::format(1000,myCol,value);
     myData->setValue(num,offset,myCol,value);
-    int ret=myTable2->insertData(myData);
+    myCol=tc3.getByCol(1,num,offset);
+    MyData::format(1001,myCol,value);
+    myData->setValue(num,offset,myCol,value);
+    myCol=tc3.getByCol(2,num,offset);
+    MyData::format(1002,myCol,value);
+    myData->setValue(num,offset,myCol,value);
+    vector<MyData*> datas;
+    datas.clear();
+    datas.push_back(myData);
+    int ret=myTable3->insertData(datas);
     cout<<ret<<endl;
 /*    myData.print();
     int num, offset;

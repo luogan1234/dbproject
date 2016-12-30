@@ -99,7 +99,15 @@ bool MyTable::isUnique(MyData *data)
 bool MyTable::isUnique(vector<MyData*> &datas)
 {
     int i,num,offset,colID,j,m;
+    m=datas.size();
     bool p=true;
+    for (i=m-1;i>=0;--i)
+        if (!cols.checkData(datas[i],myFileIO))
+        {
+            p=false;
+            datas.erase(datas.begin()+i);
+            --m;
+        }
     MyValue value;
     vector<pair<int,int>> res;
     res.clear();
@@ -116,7 +124,7 @@ bool MyTable::isUnique(vector<MyData*> &datas)
             {
                 datas[j]->getValue(num,offset,&cols.cols[colID],value);
                 indexes[i]->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
-                if (res.size()>0||!cols.checkData(datas[j],myFileIO))
+                if (res.size()>0)
                 {
                     p=false;
                     res.clear();
