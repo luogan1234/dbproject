@@ -40,6 +40,8 @@ public:
     MyCol* getByName(std::string _name,int &_num,int &_offset);
     //通过列号查找，VARCHAR将统一放在定长数据之后
     MyCol* getByCol(int colID,int &_num,int &_offset);
+    //获取主键列的信息
+    MyCol* getPrimaryCol(int &_num,int &_offset);
     //通过数据存储的顺序查找
     MyCol* getByOrder(int p,int &_num,int &_offset);
     //通过名字查找列ID

@@ -98,6 +98,15 @@ MyCol* TableCols::getByCol(int colID,int &_num,int &_offset)
     return 0;
 }
 
+MyCol* TableCols::getPrimaryCol(int &_num,int &_offset)
+{
+    for (int i=0;i<n;++i)
+        if (cols[i].isPrimary)
+            return getByCol(i,_num,_offset);
+    _num=_offset=-1;
+    return 0;
+}
+
 MyCol* TableCols::getByOrder(int p, int &_num,int &_offset)
 {
     if (p<n)
@@ -151,10 +160,11 @@ void TableCols::getForeignKey(string name,vector<int> &res)
 
 bool TableCols::checkData(MyData* data,MyFileIO* myFileIO)
 {
-    int num,offset;
-    MyCol* myCol;
-    MyValue value;
+    int num,offset,num2,offset2;
+    MyCol* myCol,*col;
+    MyValue value,v;
     std::vector<std::pair<int,int> > res;
+    std::vector<MyData*> datas;
     for (int i=0;i<n;++i)
     {
         myCol=getByCol(i,num,offset);
@@ -183,7 +193,20 @@ bool TableCols::checkData(MyData* data,MyFileIO* myFileIO)
                     return false;
                 }
                 myIndex->findData(&value,COMPARE_SMALLER_EQUAL,&value,COMPARE_LARGER_EQUAL,res);
-                if (res.size()==0)
+                datas.clear();
+                table->getData(res,datas);
+                col=table->cols.getPrimaryCol(num2,offset2);
+                int m=datas.size();bool p=false;
+                for (int j=0;j<m;++j)
+                {
+                    datas[j]->getValue(num2,offset2,col,v);
+                    if (value.compare(&v)==COMPARE_EQUAL)
+                    {
+                        p=true;
+                        break;
+                    }
+                }
+                if (!p)
                 {
                     delete table;
                     delete myIndex;

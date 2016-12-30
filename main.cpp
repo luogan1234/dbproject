@@ -11,48 +11,67 @@ using namespace std;
 int main() {
     FileManager fm;
     int fileID;
-    MyCol m1(TYPE_INT, 10, false, false, "teset1");
+    MyCol m1(TYPE_INT, 10, true, false, "teset1");
     MyCol m2(TYPE_VARCHAR, 50, false, false, "teset2");
     MyCol m3(TYPE_VARCHAR, 5, false, false, "teset3");
     MyCol m4(TYPE_CHAR, 11, false, false, "teset4");
+    MyCol m5(TYPE_INT, 10, false, false, "teset5","test");
     m3.addWordList("test");
     m3.addWordList("aaa");
-    TableCols tc;
+    TableCols tc,tc2;
     tc.addCol(m1);
     tc.addCol(m2);
     tc.addCol(m3);
     tc.addCol(m4);
     tc.setOrder();
+    tc2.addCol(m5);
+    tc2.setOrder();
+    MyFileIO myFileIO;
+    myFileIO.createDB("test");
+    myFileIO.useDB("test");
+    myFileIO.createTable("test", tc.toString());
+    myFileIO.createTable("test2", tc2.toString());
+    MyTable *myTable,*myTable2;
+    myTable = myFileIO.getTable("test");
+    myTable2 = myFileIO.getTable("test2");
+    bool p=myTable->createIndex(0,INDEX_CLUSTERED,false,false);
+    cout<<p<<endl;
     int num,offset;
-    MyData* myData=new MyData(tc);
+    MyData* myData;
     MyCol* myCol;
     MyValue value;
-    myData->print();
-    for (int i=0;i<4;++i)
+    for (int j=0;j<10;++j)
     {
-        myCol=tc.getByCol(i,num,offset);
-        switch (i)
+        myData=new MyData(tc);
+        for (int i=0;i<4;++i)
         {
-            case 0:
-                MyData::format(32768,myCol,value);
-                break;
-            case 1:
-                MyData::format("abicode",myCol,value);
-                break;
-            case 2:
-                MyData::format("aaa",myCol,value);
-                break;
-            case 3:
-                MyData::format("aabbcc",myCol,value);
-                break;
+            myCol=tc.getByCol(i,num,offset);
+            switch (i)
+            {
+                case 0:
+                    MyData::format(10000+j,myCol,value);
+                    break;
+                case 1:
+                    MyData::format("abicode",myCol,value);
+                    break;
+                case 2:
+                    MyData::format("aaa",myCol,value);
+                    break;
+                case 3:
+                    MyData::format("aabbcc",myCol,value);
+                    break;
+            }
+            myData->setValue(num,offset,myCol,value);
         }
-        value.print();
-        myData->setValue(num,offset,myCol,value);
         myData->print();
+        myTable->insertData(myData);
     }
-    myCol=tc.getByCol(0,num,offset);
-    myData->getValue(0,0,myCol,value);
-    value.print();
+    myData=new MyData(tc2);
+    myCol=tc2.getByCol(0,num,offset);
+    MyData::format(555555,myCol,value);
+    myData->setValue(num,offset,myCol,value);
+    int ret=myTable2->insertData(myData);
+    cout<<ret<<endl;
 /*    myData.print();
     int num, offset;
     MyCol *tar = tc.getByName("teset3", num, offset);

@@ -126,6 +126,7 @@ bool MyIndex::findData(MyValue* value1,int type1,MyValue* value2,int type2,vecto
     if (comRes==COMPARE_LARGER||comRes==COMPARE_EQUAL&&(type1==COMPARE_SMALLER||type2==COMPARE_LARGER))
         return true;
     int pageNow=rootPage,leftPage,leftSlot=-1,rightPage,rightSlot=-1;
+    MyValue vl,vr;
     while (true)
     {
         char *page=bm->getPage(fileID,pageNow,index);

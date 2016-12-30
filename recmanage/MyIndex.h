@@ -38,7 +38,7 @@ public:
         this->bm=bm;
         name=n;colID=c;type=t;canNull=cn;canDel=cd;
         valueType=vt;valueLen=vl;fileID=f;
-        this->vl.res=new char[2000];vn.res=new char[2000];vr.res=new char[2000];
+        this->vl.res=new char[1000];vn.res=new char[1000];vr.res=new char[1000];
         init();
     }
 
@@ -46,7 +46,7 @@ public:
     {
         this->bm=bm;
         name=n;colID=c;fileID=f;
-        vl.res=new char[2000];vn.res=new char[2000];vr.res=new char[2000];
+        vl.res=new char[1000];vn.res=new char[1000];vr.res=new char[1000];
         myTable=m;
         getInfo();
     }
